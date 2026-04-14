@@ -1,0 +1,93 @@
+{
+  "description": "Agent team configuration for EHS AI Platform. This file is documentation only — it does not configure Claude Code directly. Agents are invoked via slash commands in .claude/commands/. Read CLAUDE.md and planning.md before starting any agent.",
+  "pre_agent_phase": {
+    "who": "manual — run before any agent",
+    "steps": [0, 1],
+    "note": "Web crawling (Step 0) and ingestion experiments (Step 1) must complete before any agent is invoked. Agents have nothing to work with until real documents exist and Plan/infra/schema.md is written."
+  },
+  "invoke": {
+    "agent_1_infra":    "/agent-infra",
+    "agent_2_backend":  "/agent-backend",
+    "agent_3_frontend": "/agent-frontend"
+  },
+  "run_order": {
+    "phase_1": {
+      "who": "agent-infra",
+      "steps": [2, 3],
+      "run": "sequential — must complete before phase 2",
+      "outputs": [
+        "Plan/infra/schema.md",
+        "Plan/infra/api_contract.md"
+      ]
+    },
+    "phase_2": {
+      "who": ["agent-backend", "agent-frontend"],
+      "steps": [4, 5, 6, 7, 8],
+      "run": "parallel — both start once Plan/infra/api_contract.md exists",
+      "gate": "Plan/infra/api_contract.md must exist before either agent starts",
+      "note": "Each agent marks their half done in their own progress.md. Full e2e verify is Step 10c."
+    },
+    "phase_3": {
+      "who": "agent-infra",
+      "steps": [9, 10, 11],
+      "run": "sequential — starts after phase 2 agents both signal done",
+      "gate": "Plan/backend/progress.md and Plan/frontend/progress.md both show steps 4-8 complete"
+    }
+  },
+  "agents": {
+    "infra": {
+      "command": "/agent-infra",
+      "command_file": ".claude/commands/agent-infra.md",
+      "steps": [2, 3, 9, 10, 11],
+      "plan_folder": "Plan/infra",
+      "writes": [
+        "Plan/infra/progress.md",
+        "Plan/infra/api_contract.md",
+        "Plan/review/backend.md",
+        "Plan/review/frontend.md",
+        "Plan/review/infra.md"
+      ],
+      "reads": [
+        "CLAUDE.md",
+        "planning.md",
+        "Plan/infra/schema.md",
+        "Plan/backend/progress.md",
+        "Plan/frontend/progress.md"
+      ]
+    },
+    "backend": {
+      "command": "/agent-backend",
+      "command_file": ".claude/commands/agent-backend.md",
+      "steps": [4, 5, 6, 7, 8],
+      "plan_folder": "Plan/backend",
+      "writes": [
+        "Plan/backend/progress.md",
+        "backend/**"
+      ],
+      "reads": [
+        "CLAUDE.md",
+        "planning.md",
+        "Plan/infra/api_contract.md",
+        "Plan/infra/schema.md"
+      ],
+      "gate": "Plan/infra/api_contract.md must exist"
+    },
+    "frontend": {
+      "command": "/agent-frontend",
+      "command_file": ".claude/commands/agent-frontend.md",
+      "steps": [5, 6, 7, 8],
+      "plan_folder": "Plan/frontend",
+      "writes": [
+        "Plan/frontend/progress.md",
+        "frontend/**"
+      ],
+      "reads": [
+        "CLAUDE.md",
+        "planning.md",
+        "Plan/infra/api_contract.md"
+      ],
+      "gate": "Plan/infra/api_contract.md must exist",
+      "note": "Build against mocks first. Swap to real API calls only after Plan/backend/progress.md shows steps 4-8 complete."
+    }
+  }
+} 

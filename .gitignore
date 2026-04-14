@@ -1,0 +1,18 @@
+# Secrets — never commit
+.env
+
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+
+# Build output
+frontend/.next/
+frontend/out/
+
+# Ingested data (large files, rebuilt from ingestion scripts)
+backend/data/
+
+# OS
+.DS_Store

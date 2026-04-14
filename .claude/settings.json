@@ -1,0 +1,38 @@
+{
+  "model": "claude-opus-4-5",
+  "permissions": {
+    "allow": [
+      "Bash(docker-compose up*)",
+      "Bash(docker-compose down*)",
+      "Bash(docker exec*)",
+      "Bash(pytest*)",
+      "Bash(python*)",
+      "Bash(npm run*)",
+      "Bash(next build*)",
+      "Bash(psql*)",
+      "Bash(curl*)",
+      "Bash(mkdir*)",
+      "Bash(cat*)",
+      "Bash(ls*)",
+      "Read(*)",
+      "Write(*)"
+    ]
+  },
+  "env": {
+    "POSTGRES_USER": "ehs_user",
+    "POSTGRES_DB": "ehs_platform",
+    "POSTGRES_HOST": "db",
+    "POSTGRES_PORT": "5432",
+    "BACKEND_URL": "http://backend:8000",
+    "FRONTEND_URL": "http://frontend:3000",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "github@claude-plugins-official": true
+  }
+
+}
