@@ -43,16 +43,19 @@ export default function DocumentDetailPage() {
     try {
       const res = await fetch(`/api/documents/${id}/download`, { headers: authHeaders() })
       if (!res.ok) throw new Error("Download failed")
-      const blob = await res.blob()
+      const arrayBuffer = await res.arrayBuffer()
+      const blob = new Blob([arrayBuffer], { type: "application/pdf" })
       const url = URL.createObjectURL(blob)
       const link = window.document.createElement("a")
       link.href = url
-      link.download = filename
+      link.setAttribute("download", filename)
       link.style.display = "none"
       window.document.body.appendChild(link)
       link.click()
-      window.document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+      setTimeout(() => {
+        window.document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+      }, 100)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Download failed")
     } finally {
