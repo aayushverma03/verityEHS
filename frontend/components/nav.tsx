@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { clearToken } from "@/lib/auth"
 import { useLanguage } from "./language-provider"
 import { LanguageToggle } from "./language-toggle"
+import { Logo } from "./logo"
 
 type NavKey = "home" | "docs" | "search" | "permits" | "incident"
 
@@ -31,9 +32,9 @@ export function Nav() {
   return (
     <>
       {/* Desktop top nav */}
-      <nav className="hidden md:flex fixed top-0 left-0 right-0 h-16 bg-white/70 backdrop-blur-xl border-b border-gray-200/60 z-40 items-center px-6 shadow-sm">
-        <Link href="/" className="font-bold text-xl gradient-text mr-10">
-          EHS Platform
+      <nav className="hidden md:flex fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-xl border-b border-gray-200/60 z-40 items-center px-6 shadow-sm">
+        <Link href="/" className="mr-10 flex items-center">
+          <Logo className="h-10 w-auto" />
         </Link>
         <div className="flex gap-1">
           {navItems.map((item) => {
@@ -46,7 +47,7 @@ export function Nav() {
                 className={cn(
                   "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300",
                   isActive
-                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/25"
+                    ? "bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-md shadow-teal-500/25"
                     : "text-gray-600 hover:bg-gray-100/80 hover:text-gray-900"
                 )}
               >
@@ -67,6 +68,14 @@ export function Nav() {
         </div>
       </nav>
 
+      {/* Mobile top bar with logo */}
+      <nav className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white/80 backdrop-blur-xl border-b border-gray-200/60 z-40 flex items-center justify-between px-4">
+        <Link href="/">
+          <Logo className="h-8 w-auto" />
+        </Link>
+        <LanguageToggle />
+      </nav>
+
       {/* Mobile bottom nav */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-xl border-t border-gray-200/60 z-40 flex items-center justify-around px-2 pb-safe">
         {navItems.map((item) => {
@@ -79,7 +88,7 @@ export function Nav() {
               className={cn(
                 "flex flex-col items-center justify-center min-w-[56px] min-h-[56px] px-3 rounded-2xl transition-all duration-300",
                 isActive
-                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25"
+                  ? "bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-lg shadow-teal-500/25"
                   : "text-gray-500 hover:bg-gray-100/80"
               )}
             >

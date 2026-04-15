@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 160" width="480" height="160">
+
+  <defs>
+    <linearGradient id="hexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0F7B6C"/>
+      <stop offset="100%" style="stop-color:#0A5C8A"/>
+    </linearGradient>
+    <linearGradient id="checkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF" stop-opacity="1"/>
+      <stop offset="100%" style="stop-color:#CCF2EC" stop-opacity="1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Hexagon mark -->
+  <polygon
+    points="80,18 114,37 114,75 80,94 46,75 46,37"
+    fill="url(#hexGrad)"
+    rx="4"
+  />
+
+  <!-- Inner hexagon ring (subtle) -->
+  <polygon
+    points="80,28 107,43 107,69 80,84 53,69 53,43"
+    fill="none"
+    stroke="rgba(255,255,255,0.15)"
+    stroke-width="1.5"
+  />
+
+  <!-- Checkmark / V shape inside hex -->
+  <polyline
+    points="62,56 74,68 98,44"
+    fill="none"
+    stroke="url(#checkGrad)"
+    stroke-width="5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- Wordmark: Verity -->
+  <text
+    x="136"
+    y="70"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="42"
+    font-weight="700"
+    letter-spacing="-0.5"
+    fill="#0D3D52"
+  >Verity</text>
+
+  <!-- Wordmark: EHS -->
+  <text
+    x="138"
+    y="95"
+    font-family="'Helvetica Neue', Arial, sans-serif"
+    font-size="16"
+    font-weight="400"
+    letter-spacing="6"
+    fill="#0F7B6C"
+  >EHS</text>
+
+  <!-- Thin rule between Verity and EHS -->
+  <line x1="136" y1="78" x2="310" y2="78" stroke="#0F7B6C" stroke-width="1" opacity="0.35"/>
+
+  <!-- Tagline -->
+  <text
+    x="136"
+    y="118"
+    font-family="'Helvetica Neue', Arial, sans-serif"
+    font-size="11"
+    font-weight="400"
+    letter-spacing="1.5"
+    fill="#6B8FA3"
+  >AI-POWERED COMPLIANCE</text>
+
+</svg>

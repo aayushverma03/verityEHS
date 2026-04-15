@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { register } from "@/lib/api"
 import { useLanguage } from "@/components/language-provider"
 import { LanguageToggle } from "@/components/language-toggle"
+import { Logo } from "@/components/logo"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -41,7 +42,14 @@ export default function RegisterPage() {
       <div className="absolute top-4 right-4">
         <LanguageToggle />
       </div>
-      <Card className="w-full max-w-md">
+      <div className="flex flex-col items-center mb-8">
+        <Logo variant="mark" className="h-16 w-16 mb-4" />
+        <h1 className="text-2xl font-bold">
+          <span className="text-[#0D3D52]">Verity</span>
+          <span className="text-[#0F7B6C] ml-1">EHS</span>
+        </h1>
+      </div>
+      <Card className="w-full max-w-md glass-card border-0">
         <CardHeader>
           <CardTitle className="text-xl md:text-2xl">{t.auth.register}</CardTitle>
           <CardDescription>{t.auth.enterDetails}</CardDescription>
@@ -85,13 +93,13 @@ export default function RegisterPage() {
               />
             </div>
             {error && <p className="text-sm text-red-500">{error}</p>}
-            <Button type="submit" className="w-full min-h-[44px]" disabled={loading}>
+            <Button type="submit" className="w-full min-h-[44px] btn-primary" disabled={loading}>
               {loading ? t.auth.creatingAccount : t.auth.register}
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-gray-500">
             {t.auth.haveAccount}{" "}
-            <Link href="/login" className="text-gray-900 underline">
+            <Link href="/login" className="text-[#0F7B6C] font-medium hover:underline">
               {t.auth.signIn}
             </Link>
           </p>

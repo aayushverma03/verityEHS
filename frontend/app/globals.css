@@ -4,10 +4,11 @@
 
 @layer base {
   :root {
-    --gradient-start: #f8fafc;
-    --gradient-end: #e2e8f0;
-    --accent-blue: #3b82f6;
-    --accent-indigo: #6366f1;
+    --gradient-start: #f8fafb;
+    --gradient-end: #e8f4f2;
+    --verity-teal: #0F7B6C;
+    --verity-blue: #0A5C8A;
+    --verity-dark: #0D3D52;
   }
 
   * {
@@ -32,11 +33,11 @@
   }
 
   .gradient-text {
-    @apply bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-[#0F7B6C] to-[#0A5C8A] bg-clip-text text-transparent;
   }
 
   .btn-primary {
-    @apply bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300 hover:-translate-y-0.5;
+    @apply bg-gradient-to-r from-[#0F7B6C] to-[#0A5C8A] text-white shadow-lg shadow-teal-500/25 hover:shadow-xl hover:shadow-teal-500/40 transition-all duration-300 hover:-translate-y-0.5;
   }
 
   .btn-secondary {
@@ -48,7 +49,7 @@
   }
 
   .filter-chip-active {
-    @apply filter-chip bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/25;
+    @apply filter-chip bg-gradient-to-r from-[#0F7B6C] to-[#0A5C8A] text-white shadow-md shadow-teal-500/25;
   }
 
   .filter-chip-inactive {

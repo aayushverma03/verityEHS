@@ -23,12 +23,12 @@ const translations = {
       creatingAccount: "Creating account...",
       noAccount: "Don't have an account?",
       haveAccount: "Already have an account?",
-      enterCredentials: "Enter your credentials to access EHS Platform",
-      enterDetails: "Enter your details to register for EHS Platform",
+      enterCredentials: "Enter your credentials to access Verity EHS",
+      enterDetails: "Enter your details to register for Verity EHS",
     },
     // Home
     home: {
-      title: "EHS AI Platform",
+      title: "Verity EHS",
       subtitle: "AI-powered compliance for the chemical industry",
       searchPlaceholder: "Ask a chemical EHS question...",
     },
@@ -165,12 +165,12 @@ const translations = {
       creatingAccount: "계정 생성 중...",
       noAccount: "계정이 없으신가요?",
       haveAccount: "이미 계정이 있으신가요?",
-      enterCredentials: "EHS 플랫폼에 접속하려면 자격 증명을 입력하세요",
-      enterDetails: "EHS 플랫폼에 등록하려면 정보를 입력하세요",
+      enterCredentials: "Verity EHS에 접속하려면 자격 증명을 입력하세요",
+      enterDetails: "Verity EHS에 등록하려면 정보를 입력하세요",
     },
     // Home
     home: {
-      title: "EHS AI 플랫폼",
+      title: "Verity EHS",
       subtitle: "화학 산업을 위한 AI 기반 규정 준수",
       searchPlaceholder: "화학 EHS 질문을 입력하세요...",
     },
