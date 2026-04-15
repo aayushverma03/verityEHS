@@ -35,6 +35,7 @@ async def retrieve_chunks(
             SELECT
                 dc.content,
                 dc.token_count,
+                d.id,
                 d.title,
                 d.source_org,
                 d.regulation_ref
@@ -51,9 +52,10 @@ async def retrieve_chunks(
         chunks.append({
             "content": row[0],
             "token_count": row[1],
-            "document_title": row[2],
-            "source_org": row[3],
-            "regulation_ref": row[4],
+            "document_id": str(row[2]),
+            "document_title": row[3],
+            "source_org": row[4],
+            "regulation_ref": row[5],
         })
     return chunks
 

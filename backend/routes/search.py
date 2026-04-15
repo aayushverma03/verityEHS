@@ -60,6 +60,7 @@ async def search_stream(
 
     citations = [
         {
+            "document_id": c["document_id"],
             "document_title": c["document_title"],
             "source_org": c["source_org"],
             "regulation_reference": c["regulation_ref"],

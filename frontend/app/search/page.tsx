@@ -3,7 +3,8 @@
 
 import { useEffect, useState, Suspense, useRef } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { Search, ChevronDown, ChevronUp } from "lucide-react"
+import Link from "next/link"
+import { Search, ChevronDown, ChevronUp, ExternalLink } from "lucide-react"
 import { Nav } from "@/components/nav"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -15,6 +16,7 @@ import { useLanguage } from "@/components/language-provider"
 import { authHeaders } from "@/lib/auth"
 
 type Citation = {
+  document_id: string
   document_title: string
   source_org: string
   regulation_reference: string
@@ -194,16 +196,23 @@ function SearchContent() {
                     <CollapsibleContent>
                       <div className="px-4 pb-4 space-y-3">
                         {result.citations.map((citation, i) => (
-                          <div key={i} className="border rounded-lg p-3">
-                            <div className="flex flex-wrap gap-2 mb-2">
-                              <span className="font-medium text-sm">{citation.document_title}</span>
+                          <Link
+                            key={i}
+                            href={`/documents/${citation.document_id}`}
+                            className="block border rounded-lg p-3 hover:border-[#0F7B6C] hover:bg-gray-50 transition-colors group"
+                          >
+                            <div className="flex flex-wrap items-center gap-2 mb-2">
+                              <span className="font-medium text-sm group-hover:text-[#0F7B6C]">
+                                {citation.document_title}
+                              </span>
                               <Badge variant="outline" className="text-xs">
                                 {citation.source_org}
                               </Badge>
+                              <ExternalLink className="h-3 w-3 text-gray-400 group-hover:text-[#0F7B6C] ml-auto" />
                             </div>
                             <p className="text-xs text-gray-500 mb-2">{citation.regulation_reference}</p>
                             <p className="text-sm text-gray-600 line-clamp-3">{citation.chunk_excerpt}</p>
-                          </div>
+                          </Link>
                         ))}
                       </div>
                     </CollapsibleContent>
