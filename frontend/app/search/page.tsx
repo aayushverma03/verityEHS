@@ -1,10 +1,11 @@
-// Search results page
+// Search results page with markdown rendering and follow-up questions
 "use client"
 
 import { useEffect, useState, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { Search, ChevronDown, ChevronUp, ExternalLink, Loader2 } from "lucide-react"
+import ReactMarkdown from "react-markdown"
+import { Search, ChevronDown, ChevronUp, ExternalLink, Loader2, Send } from "lucide-react"
 import { Nav } from "@/components/nav"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -22,9 +23,10 @@ type Citation = {
   chunk_excerpt: string
 }
 
-type SearchResult = {
-  answer: string
-  citations: Citation[]
+type Message = {
+  role: "user" | "assistant"
+  content: string
+  citations?: Citation[]
 }
 
 function SearchContent() {
@@ -33,13 +35,14 @@ function SearchContent() {
   const { t, locale } = useLanguage()
   const initialQuery = searchParams.get("q") || ""
   const [query, setQuery] = useState(initialQuery)
-  const [result, setResult] = useState<SearchResult | null>(null)
+  const [followUp, setFollowUp] = useState("")
+  const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [citationsOpen, setCitationsOpen] = useState(false)
+  const [citationsOpen, setCitationsOpen] = useState<Record<number, boolean>>({})
 
   useEffect(() => {
-    if (initialQuery) {
+    if (initialQuery && messages.length === 0) {
       performSearch(initialQuery)
     }
   }, [initialQuery])
@@ -47,7 +50,9 @@ function SearchContent() {
   async function performSearch(q: string) {
     setLoading(true)
     setError("")
-    setResult(null)
+
+    // Add user message
+    setMessages((prev) => [...prev, { role: "user", content: q }])
 
     try {
       const res = await fetch("/api/search", {
@@ -58,7 +63,12 @@ function SearchContent() {
 
       if (!res.ok) throw new Error("Search failed")
       const data = await res.json()
-      setResult(data)
+
+      // Add assistant message with citations
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: data.answer, citations: data.citations },
+      ])
     } catch (err) {
       setError(err instanceof Error ? err.message : "Search failed")
     } finally {
@@ -69,8 +79,21 @@ function SearchContent() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (query.trim()) {
+      setMessages([])
       router.push(`/search?q=${encodeURIComponent(query.trim())}`)
     }
+  }
+
+  function handleFollowUp(e: React.FormEvent) {
+    e.preventDefault()
+    if (followUp.trim() && !loading) {
+      performSearch(followUp.trim())
+      setFollowUp("")
+    }
+  }
+
+  function toggleCitations(index: number) {
+    setCitationsOpen((prev) => ({ ...prev, [index]: !prev[index] }))
   }
 
   return (
@@ -102,7 +125,120 @@ function SearchContent() {
 
           {error && <p className="text-red-500 mb-4">{error}</p>}
 
-          {loading ? (
+          {/* Conversation messages */}
+          {messages.length > 0 && (
+            <div className="space-y-4 mb-4">
+              {messages.map((msg, idx) => (
+                <div key={idx}>
+                  {msg.role === "user" ? (
+                    <div className="flex justify-end mb-2">
+                      <div className="bg-[#0F7B6C] text-white px-4 py-2 rounded-2xl rounded-br-sm max-w-[80%]">
+                        {msg.content}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <Card className="glass-card">
+                        <CardHeader className="pb-2">
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="text-lg">{t.search.aiAnswer}</CardTitle>
+                            {msg.citations && (
+                              <Badge variant="secondary">
+                                {msg.citations.length} {t.search.sources}
+                              </Badge>
+                            )}
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="prose prose-sm max-w-none text-gray-700">
+                            <ReactMarkdown>{msg.content}</ReactMarkdown>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Citations for this message */}
+                      {msg.citations && msg.citations.length > 0 && (
+                        <Collapsible open={citationsOpen[idx]} onOpenChange={() => toggleCitations(idx)}>
+                          <Card>
+                            <CollapsibleTrigger asChild>
+                              <button className="w-full p-4 flex items-center justify-between text-left min-h-[48px]">
+                                <span className="font-medium">
+                                  {t.search.citations} ({msg.citations.length})
+                                </span>
+                                {citationsOpen[idx] ? (
+                                  <ChevronUp className="h-5 w-5 text-gray-500" />
+                                ) : (
+                                  <ChevronDown className="h-5 w-5 text-gray-500" />
+                                )}
+                              </button>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                              <div className="px-4 pb-4 space-y-3">
+                                {msg.citations.map((citation, i) => (
+                                  <Link
+                                    key={i}
+                                    href={`/documents/${citation.document_id}`}
+                                    className="block border rounded-lg p-3 hover:border-[#0F7B6C] hover:bg-gray-50 transition-colors group"
+                                  >
+                                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                                      <span className="font-medium text-sm group-hover:text-[#0F7B6C]">
+                                        {citation.document_title}
+                                      </span>
+                                      <Badge variant="outline" className="text-xs">
+                                        {citation.source_org}
+                                      </Badge>
+                                      <ExternalLink className="h-3 w-3 text-gray-400 group-hover:text-[#0F7B6C] ml-auto" />
+                                    </div>
+                                    <p className="text-xs text-gray-500 mb-2">
+                                      {citation.regulation_reference}
+                                    </p>
+                                    <p className="text-sm text-gray-600 line-clamp-3">
+                                      {citation.chunk_excerpt}
+                                    </p>
+                                  </Link>
+                                ))}
+                              </div>
+                            </CollapsibleContent>
+                          </Card>
+                        </Collapsible>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* Loading indicator */}
+              {loading && (
+                <Card className="glass-card">
+                  <CardContent className="py-8 flex flex-col items-center justify-center text-center">
+                    <Loader2 className="h-8 w-8 text-[#0F7B6C] animate-spin mb-3" />
+                    <p className="text-base font-medium text-gray-700">
+                      {locale === "ko" ? "AI 응답 생성 중..." : "Generating AI response..."}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Follow-up input */}
+              {!loading && (
+                <form onSubmit={handleFollowUp} className="flex gap-2">
+                  <Input
+                    type="text"
+                    value={followUp}
+                    onChange={(e) => setFollowUp(e.target.value)}
+                    placeholder={locale === "ko" ? "추가 질문하기..." : "Ask a follow-up question..."}
+                    className="flex-1 min-h-[48px]"
+                  />
+                  <Button type="submit" disabled={!followUp.trim()} className="min-h-[48px] btn-primary">
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </form>
+              )}
+            </div>
+          )}
+
+          {/* Initial loading state */}
+          {loading && messages.length === 0 && (
             <Card className="glass-card">
               <CardContent className="py-12 flex flex-col items-center justify-center text-center">
                 <Loader2 className="h-10 w-10 text-[#0F7B6C] animate-spin mb-4" />
@@ -114,65 +250,7 @@ function SearchContent() {
                 </p>
               </CardContent>
             </Card>
-          ) : result ? (
-            <div className="space-y-4">
-              {/* Answer card */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{t.search.aiAnswer}</CardTitle>
-                    <Badge variant="secondary">{result.citations.length} {t.search.sources}</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700 whitespace-pre-wrap">{result.answer}</p>
-                </CardContent>
-              </Card>
-
-              {/* Citations panel */}
-              {result.citations.length > 0 && (
-                <Collapsible open={citationsOpen} onOpenChange={setCitationsOpen}>
-                  <Card>
-                    <CollapsibleTrigger asChild>
-                      <button className="w-full p-4 flex items-center justify-between text-left min-h-[48px]">
-                        <span className="font-medium">{t.search.citations} ({result.citations.length})</span>
-                        {citationsOpen ? (
-                          <ChevronUp className="h-5 w-5 text-gray-500" />
-                        ) : (
-                          <ChevronDown className="h-5 w-5 text-gray-500" />
-                        )}
-                      </button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <div className="px-4 pb-4 space-y-3">
-                        {result.citations.map((citation, i) => (
-                          <Link
-                            key={i}
-                            href={`/documents/${citation.document_id}`}
-                            className="block border rounded-lg p-3 hover:border-[#0F7B6C] hover:bg-gray-50 transition-colors group"
-                          >
-                            <div className="flex flex-wrap items-center gap-2 mb-2">
-                              <span className="font-medium text-sm group-hover:text-[#0F7B6C]">
-                                {citation.document_title}
-                              </span>
-                              <Badge variant="outline" className="text-xs">
-                                {citation.source_org}
-                              </Badge>
-                              <ExternalLink className="h-3 w-3 text-gray-400 group-hover:text-[#0F7B6C] ml-auto" />
-                            </div>
-                            <p className="text-xs text-gray-500 mb-2">{citation.regulation_reference}</p>
-                            <p className="text-sm text-gray-600 line-clamp-3">{citation.chunk_excerpt}</p>
-                          </Link>
-                        ))}
-                      </div>
-                    </CollapsibleContent>
-                  </Card>
-                </Collapsible>
-              )}
-            </div>
-          ) : initialQuery ? (
-            <p className="text-center text-gray-500">{t.search.noResults}</p>
-          ) : null}
+          )}
         </div>
       </main>
     </>
