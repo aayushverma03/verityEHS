@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getDocuments } from "@/lib/api"
+import { useLanguage } from "@/components/language-provider"
 
 type Document = {
   id: string
@@ -38,6 +39,7 @@ function getPillarColor(pillar: string) {
 }
 
 export default function DocumentsPage() {
+  const { t } = useLanguage()
   const [documents, setDocuments] = useState<Document[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -67,7 +69,7 @@ export default function DocumentsPage() {
       <Nav />
       <main className="min-h-screen pt-4 pb-20 md:pt-16 md:pb-4 px-4">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-xl md:text-3xl font-bold mb-4">Document Library</h1>
+          <h1 className="text-xl md:text-3xl font-bold mb-4">{t.documents.title}</h1>
 
           {/* Pillar filters */}
           <div className="flex flex-wrap gap-2 mb-3">
@@ -139,7 +141,7 @@ export default function DocumentsPage() {
                           </span>
                         </div>
                         <p className="text-sm text-gray-500">
-                          {doc.regulation_ref} | {doc.language.toUpperCase()} | {doc.page_count} pages
+                          {doc.regulation_ref} | {doc.language.toUpperCase()} | {doc.page_count} {t.documents.pages}
                         </p>
                       </CardContent>
                     </Card>
@@ -148,7 +150,7 @@ export default function DocumentsPage() {
           </div>
 
           {!loading && documents.length === 0 && (
-            <p className="text-center text-gray-500 mt-8">No documents found matching your filters.</p>
+            <p className="text-center text-gray-500 mt-8">{t.documents.noResults}</p>
           )}
         </div>
       </main>

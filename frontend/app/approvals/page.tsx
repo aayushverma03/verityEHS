@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getApprovals } from "@/lib/api"
+import { useLanguage } from "@/components/language-provider"
 
 type Approval = {
   id: string
@@ -21,16 +22,16 @@ type Approval = {
   created_at: string
 }
 
-function getStatusBadge(status: string) {
+function StatusBadge({ status, t }: { status: string; t: { approvals: { approved: string; pending: string; rejected: string; expired: string } } }) {
   switch (status) {
     case "approved":
-      return <Badge variant="success">Approved</Badge>
+      return <Badge variant="success">{t.approvals.approved}</Badge>
     case "pending":
-      return <Badge variant="warning">Pending</Badge>
+      return <Badge variant="warning">{t.approvals.pending}</Badge>
     case "rejected":
-      return <Badge variant="danger">Rejected</Badge>
+      return <Badge variant="danger">{t.approvals.rejected}</Badge>
     case "expired":
-      return <Badge variant="secondary">Expired</Badge>
+      return <Badge variant="secondary">{t.approvals.expired}</Badge>
     default:
       return <Badge variant="secondary">{status}</Badge>
   }
@@ -48,6 +49,7 @@ function getRiskBadge(score: string, colour: string) {
 }
 
 export default function ApprovalsPage() {
+  const { t } = useLanguage()
   const [approvals, setApprovals] = useState<Approval[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -72,15 +74,15 @@ export default function ApprovalsPage() {
       <main className="min-h-screen pt-4 pb-20 md:pt-16 md:pb-4 px-4">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-xl md:text-3xl font-bold">My Permits</h1>
+            <h1 className="text-xl md:text-3xl font-bold">{t.approvals.title}</h1>
             <div className="flex gap-2">
               <Button asChild variant="outline" className="min-h-[44px]">
-                <Link href="/approvals/review">Review Queue</Link>
+                <Link href="/approvals/review">{t.approvals.reviewQueue}</Link>
               </Button>
               <Button asChild className="min-h-[44px]">
                 <Link href="/approvals/new">
                   <Plus className="h-4 w-4 mr-1" />
-                  New Permit
+                  {t.approvals.newPermit}
                 </Link>
               </Button>
             </div>
@@ -106,7 +108,7 @@ export default function ApprovalsPage() {
                           <div>
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-medium">{approval.operation_type}</span>
-                              {getStatusBadge(approval.status)}
+                              <StatusBadge status={approval.status} t={t} />
                               {getRiskBadge(approval.risk_score, approval.risk_colour)}
                             </div>
                             <p className="text-sm text-gray-500 mt-1">
@@ -122,9 +124,9 @@ export default function ApprovalsPage() {
 
           {!loading && approvals.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-gray-500 mb-4">No permit requests yet.</p>
+              <p className="text-gray-500 mb-4">{t.approvals.noPermits}</p>
               <Button asChild className="min-h-[44px]">
-                <Link href="/approvals/new">Create your first permit request</Link>
+                <Link href="/approvals/new">{t.approvals.createFirst}</Link>
               </Button>
             </div>
           )}

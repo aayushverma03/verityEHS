@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { search } from "@/lib/api"
+import { useLanguage } from "@/components/language-provider"
 
 type SearchResult = {
   answer: string
@@ -26,6 +27,7 @@ type SearchResult = {
 function SearchContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const { t } = useLanguage()
   const initialQuery = searchParams.get("q") || ""
   const [query, setQuery] = useState(initialQuery)
   const [result, setResult] = useState<SearchResult | null>(null)
@@ -72,18 +74,18 @@ function SearchContent() {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Ask a chemical EHS question..."
+                placeholder={t.home.searchPlaceholder}
                 className="pl-10 min-h-[48px] text-base"
               />
             </div>
             <Button type="submit" className="min-h-[48px] min-w-[100px]">
-              Search
+              {t.common.search}
             </Button>
           </form>
 
           {initialQuery && (
             <p className="text-sm text-gray-500 mb-4">
-              Results for: <span className="font-medium text-gray-900">{initialQuery}</span>
+              {t.search.resultsFor} <span className="font-medium text-gray-900">{initialQuery}</span>
             </p>
           )}
 
@@ -106,8 +108,8 @@ function SearchContent() {
               <Card>
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">AI Answer</CardTitle>
-                    <Badge variant="secondary">{result.citations.length} sources</Badge>
+                    <CardTitle className="text-lg">{t.search.aiAnswer}</CardTitle>
+                    <Badge variant="secondary">{result.citations.length} {t.search.sources}</Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -121,7 +123,7 @@ function SearchContent() {
                   <Card>
                     <CollapsibleTrigger asChild>
                       <button className="w-full p-4 flex items-center justify-between text-left min-h-[48px]">
-                        <span className="font-medium">Citations ({result.citations.length})</span>
+                        <span className="font-medium">{t.search.citations} ({result.citations.length})</span>
                         {citationsOpen ? (
                           <ChevronUp className="h-5 w-5 text-gray-500" />
                         ) : (
@@ -150,7 +152,7 @@ function SearchContent() {
               )}
             </div>
           ) : initialQuery ? (
-            <p className="text-center text-gray-500">No results found.</p>
+            <p className="text-center text-gray-500">{t.search.noResults}</p>
           ) : null}
         </div>
       </main>
