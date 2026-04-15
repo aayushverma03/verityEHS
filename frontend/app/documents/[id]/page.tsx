@@ -31,23 +31,27 @@ type DocumentDetail = {
 export default function DocumentDetailPage() {
   const params = useParams()
   const id = params.id as string
-  const [document, setDocument] = useState<DocumentDetail | null>(null)
+  const [doc, setDoc] = useState<DocumentDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [downloading, setDownloading] = useState(false)
 
   async function handleDownload() {
-    if (!document) return
+    if (!doc) return
+    const filename = doc.filename
     setDownloading(true)
     try {
       const res = await fetch(`/api/documents/${id}/download`, { headers: authHeaders() })
       if (!res.ok) throw new Error("Download failed")
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
-      const a = window.document.createElement("a")
-      a.href = url
-      a.download = document.filename
-      a.click()
+      const link = window.document.createElement("a")
+      link.href = url
+      link.download = filename
+      link.style.display = "none"
+      window.document.body.appendChild(link)
+      link.click()
+      window.document.body.removeChild(link)
       URL.revokeObjectURL(url)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Download failed")
@@ -60,7 +64,7 @@ export default function DocumentDetailPage() {
     async function load() {
       try {
         const data = await getDocument(id)
-        setDocument(data)
+        setDoc(data)
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load document")
       } finally {
@@ -96,35 +100,35 @@ export default function DocumentDetailPage() {
             </Card>
           ) : error ? (
             <p className="text-red-500">{error}</p>
-          ) : document ? (
+          ) : doc ? (
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl md:text-2xl">{document.title}</CardTitle>
+                <CardTitle className="text-xl md:text-2xl">{doc.title}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="outline">{document.source_org}</Badge>
-                  <Badge variant="secondary">{document.pillar}</Badge>
-                  <Badge variant="secondary">{document.language.toUpperCase()}</Badge>
+                  <Badge variant="outline">{doc.source_org}</Badge>
+                  <Badge variant="secondary">{doc.pillar}</Badge>
+                  <Badge variant="secondary">{doc.language.toUpperCase()}</Badge>
                 </div>
 
                 <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div>
                     <dt className="text-gray-500">Regulation Reference</dt>
-                    <dd className="font-medium">{document.regulation_ref}</dd>
+                    <dd className="font-medium">{doc.regulation_ref}</dd>
                   </div>
                   <div>
                     <dt className="text-gray-500">Pages</dt>
-                    <dd className="font-medium">{document.page_count}</dd>
+                    <dd className="font-medium">{doc.page_count}</dd>
                   </div>
                   <div>
                     <dt className="text-gray-500">Filename</dt>
-                    <dd className="font-medium break-all">{document.filename}</dd>
+                    <dd className="font-medium break-all">{doc.filename}</dd>
                   </div>
                   <div>
                     <dt className="text-gray-500">Ingested</dt>
                     <dd className="font-medium">
-                      {new Date(document.ingested_at).toLocaleDateString()}
+                      {new Date(doc.ingested_at).toLocaleDateString()}
                     </dd>
                   </div>
                 </dl>
