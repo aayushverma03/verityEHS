@@ -1,7 +1,7 @@
 // New approval request page with AI risk scoring and prefill
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Sparkles } from "lucide-react"
@@ -54,7 +54,11 @@ export default function NewApprovalPage() {
   const [prefillData, setPrefillData] = useState<RiskPrefill | null>(null)
   const [loadingPrefill, setLoadingPrefill] = useState(false)
 
-  // Debounced risk scoring
+  // Use ref for riskNotes to avoid re-creating callback on every keystroke
+  const riskNotesRef = useRef(riskNotes)
+  riskNotesRef.current = riskNotes
+
+  // Risk scoring function - doesn't depend on riskNotes directly
   const fetchRiskScore = useCallback(async () => {
     if (!operationType || !siteName) return
     setScoringRisk(true)
@@ -62,32 +66,32 @@ export default function NewApprovalPage() {
       const score = await getRiskScore({
         operation_type: operationType,
         site_name: siteName,
-        risk_notes: riskNotes,
+        risk_notes: riskNotesRef.current,
       })
       setRiskScore(score)
     } catch {
-      // Silently fail - hide badge on error
       setRiskScore(null)
     } finally {
       setScoringRisk(false)
     }
-  }, [operationType, siteName, riskNotes])
+  }, [operationType, siteName])
 
-  // Trigger risk scoring on operation type change
+  // Trigger risk scoring on operation type or site name change
   useEffect(() => {
     if (operationType && siteName) {
       fetchRiskScore()
     }
   }, [operationType, siteName, fetchRiskScore])
 
-  // Debounce risk scoring on risk notes change
+  // Debounce risk scoring on risk notes change (separate effect)
   useEffect(() => {
-    if (!operationType || !siteName) return
+    if (!operationType || !siteName || !riskNotes) return
     const timer = setTimeout(() => {
       fetchRiskScore()
-    }, 800)
+    }, 1000)
     return () => clearTimeout(timer)
-  }, [riskNotes, operationType, siteName, fetchRiskScore])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [riskNotes])
 
   async function handlePrefill() {
     if (!operationType || !siteName) return
@@ -135,24 +139,24 @@ export default function NewApprovalPage() {
   return (
     <>
       <Nav />
-      <main className="min-h-screen pt-4 pb-20 md:pt-16 md:pb-4 px-4">
+      <main className="min-h-screen pt-20 pb-24 md:pt-24 md:pb-8 px-4">
         <div className="max-w-2xl mx-auto">
           <Link
             href="/approvals"
-            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4 min-h-[44px]"
+            className="inline-flex items-center text-sm text-stone-600 hover:text-stone-900 mb-4 min-h-[44px]"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to permits
           </Link>
 
-          <Card>
+          <Card className="bg-white border border-stone-200">
             <CardHeader>
               <CardTitle className="text-xl md:text-2xl">New Permit Request</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="operationType">Operation Type</Label>
+                  <Label htmlFor="operationType" className="text-stone-700">Operation Type</Label>
                   <Select value={operationType} onValueChange={setOperationType}>
                     <SelectTrigger className="min-h-[44px]">
                       <SelectValue placeholder="Select operation type" />
@@ -170,12 +174,12 @@ export default function NewApprovalPage() {
                 {/* AI6 Risk Score Badge */}
                 {(scoringRisk || riskScore) && (
                   <div
-                    className={`p-3 rounded-md border ${
-                      scoringRisk ? "bg-gray-100 border-gray-200" : riskColorClass
+                    className={`p-3 rounded-lg border ${
+                      scoringRisk ? "bg-stone-50 border-stone-200" : riskColorClass
                     }`}
                   >
                     {scoringRisk ? (
-                      <p className="text-sm text-gray-600">Assessing risk...</p>
+                      <p className="text-sm text-stone-600">Assessing risk...</p>
                     ) : riskScore ? (
                       <>
                         <p className="font-medium">Risk Level: {riskScore.risk_level}</p>
@@ -186,7 +190,7 @@ export default function NewApprovalPage() {
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="siteName">Site Name</Label>
+                  <Label htmlFor="siteName" className="text-stone-700">Site Name</Label>
                   <Input
                     id="siteName"
                     value={siteName}
@@ -199,7 +203,7 @@ export default function NewApprovalPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="plannedStart">Planned Start</Label>
+                    <Label htmlFor="plannedStart" className="text-stone-700">Planned Start</Label>
                     <Input
                       id="plannedStart"
                       type="datetime-local"
@@ -210,7 +214,7 @@ export default function NewApprovalPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="plannedEnd">Planned End</Label>
+                    <Label htmlFor="plannedEnd" className="text-stone-700">Planned End</Label>
                     <Input
                       id="plannedEnd"
                       type="datetime-local"
@@ -224,14 +228,14 @@ export default function NewApprovalPage() {
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="riskNotes">Risk Notes</Label>
+                    <Label htmlFor="riskNotes" className="text-stone-700">Risk Notes</Label>
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={handlePrefill}
                       disabled={!operationType || !siteName || loadingPrefill}
-                      className="text-sm"
+                      className="text-sm text-teal-700 hover:text-teal-800"
                     >
                       <Sparkles className="h-4 w-4 mr-1" />
                       {loadingPrefill ? "Loading..." : "Pre-fill with AI"}
@@ -248,29 +252,29 @@ export default function NewApprovalPage() {
 
                 {/* AI2 Prefill Results */}
                 {prefillData && (
-                  <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
-                    <p className="text-xs text-gray-500">
+                  <div className="space-y-4 p-4 bg-stone-50 rounded-lg border border-stone-200">
+                    <p className="text-xs text-stone-500">
                       Generated from: {prefillData.regulation_reference}
                     </p>
                     <div>
-                      <h4 className="font-medium text-sm mb-2">Identified Hazards</h4>
-                      <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                      <h4 className="font-medium text-sm text-stone-800 mb-2">Identified Hazards</h4>
+                      <ul className="list-disc list-inside text-sm text-stone-600 space-y-1">
                         {prefillData.hazards.map((h, i) => (
                           <li key={i}>{h}</li>
                         ))}
                       </ul>
                     </div>
                     <div>
-                      <h4 className="font-medium text-sm mb-2">Required Precautions</h4>
-                      <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                      <h4 className="font-medium text-sm text-stone-800 mb-2">Required Precautions</h4>
+                      <ul className="list-disc list-inside text-sm text-stone-600 space-y-1">
                         {prefillData.precautions.map((p, i) => (
                           <li key={i}>{p}</li>
                         ))}
                       </ul>
                     </div>
                     <div>
-                      <h4 className="font-medium text-sm mb-2">PPE Required</h4>
-                      <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                      <h4 className="font-medium text-sm text-stone-800 mb-2">PPE Required</h4>
+                      <ul className="list-disc list-inside text-sm text-stone-600 space-y-1">
                         {prefillData.ppe_required.map((ppe, i) => (
                           <li key={i}>{ppe}</li>
                         ))}
@@ -279,9 +283,9 @@ export default function NewApprovalPage() {
                   </div>
                 )}
 
-                {error && <p className="text-sm text-red-500">{error}</p>}
+                {error && <p className="text-sm text-red-600">{error}</p>}
 
-                <Button type="submit" className="w-full min-h-[44px]" disabled={loading}>
+                <Button type="submit" className="w-full min-h-[44px] btn-primary" disabled={loading}>
                   {loading ? "Submitting..." : "Submit Permit Request"}
                 </Button>
               </form>

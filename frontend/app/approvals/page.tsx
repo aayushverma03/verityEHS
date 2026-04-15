@@ -71,15 +71,15 @@ export default function ApprovalsPage() {
   return (
     <>
       <Nav />
-      <main className="min-h-screen pt-4 pb-20 md:pt-16 md:pb-4 px-4">
+      <main className="min-h-screen pt-20 pb-24 md:pt-24 md:pb-8 px-4">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-xl md:text-3xl font-bold">{t.approvals.title}</h1>
+            <h1 className="text-xl md:text-3xl font-bold text-stone-800">{t.approvals.title}</h1>
             <div className="flex gap-2">
               <Button asChild variant="outline" className="min-h-[44px]">
                 <Link href="/approvals/review">{t.approvals.reviewQueue}</Link>
               </Button>
-              <Button asChild className="min-h-[44px]">
+              <Button asChild className="min-h-[44px] btn-primary">
                 <Link href="/approvals/new">
                   <Plus className="h-4 w-4 mr-1" />
                   {t.approvals.newPermit}
@@ -88,12 +88,12 @@ export default function ApprovalsPage() {
             </div>
           </div>
 
-          {error && <p className="text-red-500 mb-4">{error}</p>}
+          {error && <p className="text-red-600 mb-4">{error}</p>}
 
           <div className="space-y-3">
             {loading
               ? Array.from({ length: 3 }).map((_, i) => (
-                  <Card key={i}>
+                  <Card key={i} className="bg-white border border-stone-200">
                     <CardContent className="p-4">
                       <Skeleton className="h-5 w-1/3 mb-2" />
                       <Skeleton className="h-4 w-1/2" />
@@ -102,16 +102,16 @@ export default function ApprovalsPage() {
                 ))
               : approvals.map((approval) => (
                   <Link key={approval.id} href={`/approvals/${approval.id}`}>
-                    <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                    <Card className="bg-white border border-stone-200 hover:border-stone-300 hover:shadow-sm transition-all cursor-pointer">
                       <CardContent className="p-4">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                           <div>
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-medium">{approval.operation_type}</span>
+                              <span className="font-medium text-stone-800">{approval.operation_type}</span>
                               <StatusBadge status={approval.status} t={t} />
                               {getRiskBadge(approval.risk_score, approval.risk_colour)}
                             </div>
-                            <p className="text-sm text-gray-500 mt-1">
+                            <p className="text-sm text-stone-500 mt-1">
                               {approval.site_name} | {new Date(approval.created_at).toLocaleDateString()}
                             </p>
                           </div>
@@ -124,8 +124,8 @@ export default function ApprovalsPage() {
 
           {!loading && approvals.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-gray-500 mb-4">{t.approvals.noPermits}</p>
-              <Button asChild className="min-h-[44px]">
+              <p className="text-stone-500 mb-4">{t.approvals.noPermits}</p>
+              <Button asChild className="min-h-[44px] btn-primary">
                 <Link href="/approvals/new">{t.approvals.createFirst}</Link>
               </Button>
             </div>

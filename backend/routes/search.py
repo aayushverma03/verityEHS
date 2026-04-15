@@ -38,6 +38,7 @@ async def search(
             source_org=c["source_org"],
             regulation_reference=c["regulation_ref"],
             chunk_excerpt=c["content"][:300] + "..." if len(c["content"]) > 300 else c["content"],
+            confidence=c["confidence"],
         )
         for c in chunks
     ]
@@ -66,6 +67,7 @@ async def search_stream(
             "source_org": c["source_org"],
             "regulation_reference": c["regulation_ref"],
             "chunk_excerpt": c["content"][:300] + "..." if len(c["content"]) > 300 else c["content"],
+            "confidence": c["confidence"],
         }
         for c in chunks
     ]

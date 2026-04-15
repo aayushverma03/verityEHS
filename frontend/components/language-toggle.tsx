@@ -8,14 +8,14 @@ export function LanguageToggle() {
   const { locale, setLocale } = useLanguage()
 
   return (
-    <div className="flex rounded-lg border border-gray-200 overflow-hidden">
+    <div className="flex rounded-lg border border-stone-300 overflow-hidden">
       <button
         onClick={() => setLocale("en")}
         className={cn(
-          "px-3 py-1.5 text-sm font-medium transition-colors min-h-[36px]",
+          "px-3 py-1.5 text-sm font-medium transition-colors duration-200 min-h-[36px]",
           locale === "en"
-            ? "bg-gradient-to-r from-[#0F7B6C] to-[#0A5C8A] text-white"
-            : "bg-white text-gray-600 hover:bg-gray-50"
+            ? "bg-teal-700 text-white"
+            : "bg-white text-stone-600 hover:bg-stone-50"
         )}
         aria-label="Switch to English"
       >
@@ -24,10 +24,10 @@ export function LanguageToggle() {
       <button
         onClick={() => setLocale("ko")}
         className={cn(
-          "px-3 py-1.5 text-sm font-medium transition-colors min-h-[36px]",
+          "px-3 py-1.5 text-sm font-medium transition-colors duration-200 min-h-[36px]",
           locale === "ko"
-            ? "bg-gradient-to-r from-[#0F7B6C] to-[#0A5C8A] text-white"
-            : "bg-white text-gray-600 hover:bg-gray-50"
+            ? "bg-teal-700 text-white"
+            : "bg-white text-stone-600 hover:bg-stone-50"
         )}
         aria-label="Switch to Korean"
       >

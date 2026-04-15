@@ -94,24 +94,24 @@ export default function ReviewQueuePage() {
   return (
     <>
       <Nav />
-      <main className="min-h-screen pt-4 pb-20 md:pt-16 md:pb-4 px-4">
+      <main className="min-h-screen pt-20 pb-24 md:pt-24 md:pb-8 px-4">
         <div className="max-w-3xl mx-auto">
           <Link
             href="/approvals"
-            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4 min-h-[44px]"
+            className="inline-flex items-center text-sm text-stone-600 hover:text-stone-900 mb-4 min-h-[44px]"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to permits
           </Link>
 
-          <h1 className="text-xl md:text-3xl font-bold mb-6">Review Queue</h1>
+          <h1 className="text-xl md:text-3xl font-bold text-stone-800 mb-6">Review Queue</h1>
 
-          {error && <p className="text-red-500 mb-4">{error}</p>}
+          {error && <p className="text-red-600 mb-4">{error}</p>}
 
           <div className="space-y-4">
             {loading
               ? Array.from({ length: 2 }).map((_, i) => (
-                  <Card key={i}>
+                  <Card key={i} className="bg-white border border-stone-200">
                     <CardContent className="p-4">
                       <Skeleton className="h-5 w-1/3 mb-2" />
                       <Skeleton className="h-4 w-1/2 mb-4" />
@@ -120,19 +120,19 @@ export default function ReviewQueuePage() {
                   </Card>
                 ))
               : approvals.map((approval) => (
-                  <Card key={approval.id}>
+                  <Card key={approval.id} className="bg-white border border-stone-200">
                     <CardContent className="p-4">
                       <div className="flex flex-col gap-3">
                         <div>
                           <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <span className="font-medium">{approval.operation_type}</span>
+                            <span className="font-medium text-stone-800">{approval.operation_type}</span>
                             <Badge variant="warning">Pending</Badge>
                             {getRiskBadge(approval.risk_score, approval.risk_colour)}
                           </div>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-stone-600">
                             Requested by {approval.requester_name}
                           </p>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-stone-500">
                             {approval.site_name} |{" "}
                             {new Date(approval.planned_start).toLocaleDateString()} -{" "}
                             {new Date(approval.planned_end).toLocaleDateString()}
@@ -197,7 +197,7 @@ export default function ReviewQueuePage() {
           </div>
 
           {!loading && approvals.length === 0 && (
-            <p className="text-center text-gray-500 py-8">No pending approvals to review.</p>
+            <p className="text-center text-stone-500 py-8">No pending approvals to review.</p>
           )}
         </div>
       </main>

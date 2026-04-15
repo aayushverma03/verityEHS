@@ -21,12 +21,13 @@ router = APIRouter(prefix="/api/documents", tags=["documents"])
 async def list_documents(
     pillar: Optional[str] = Query(None),
     source_org: Optional[str] = Query(None),
+    doc_type: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db),
     _user: dict = Depends(get_current_user),
 ):
     """List all documents with optional filters."""
     query = """
-        SELECT id, title, source_org, regulation_ref, pillar, language, page_count
+        SELECT id, title, source_org, regulation_ref, pillar, language, page_count, doc_type
         FROM documents
         WHERE 1=1
     """
@@ -38,6 +39,9 @@ async def list_documents(
     if source_org:
         query += " AND source_org = :source_org"
         params["source_org"] = source_org
+    if doc_type:
+        query += " AND doc_type = :doc_type"
+        params["doc_type"] = doc_type
 
     query += " ORDER BY title"
 
@@ -51,6 +55,7 @@ async def list_documents(
             pillar=row[4],
             language=row[5],
             page_count=row[6],
+            doc_type=row[7],
         )
         for row in result.fetchall()
     ]

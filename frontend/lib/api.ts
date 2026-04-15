@@ -38,10 +38,11 @@ export async function login(data: { email: string; password: string }) {
 }
 
 // Documents
-export async function getDocuments(filters?: { pillar?: string; source_org?: string }) {
+export async function getDocuments(filters?: { pillar?: string; source_org?: string; doc_type?: string }) {
   const params = new URLSearchParams()
   if (filters?.pillar && filters.pillar !== "all") params.set("pillar", filters.pillar)
   if (filters?.source_org && filters.source_org !== "All") params.set("source_org", filters.source_org)
+  if (filters?.doc_type && filters.doc_type !== "all") params.set("doc_type", filters.doc_type)
   const query = params.toString() ? `?${params}` : ""
   const res = await fetch(`${API_BASE}/documents${query}`, { headers: authHeaders() })
   return handleResponse<Array<{
@@ -52,6 +53,7 @@ export async function getDocuments(filters?: { pillar?: string; source_org?: str
     pillar: string
     language: string
     page_count: number
+    doc_type: string
   }>>(res)
 }
 

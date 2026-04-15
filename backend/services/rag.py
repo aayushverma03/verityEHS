@@ -38,7 +38,8 @@ async def retrieve_chunks(
                 d.id,
                 d.title,
                 d.source_org,
-                d.regulation_ref
+                d.regulation_ref,
+                dc.embedding <=> :embedding as distance
             FROM document_chunks dc
             JOIN documents d ON d.id = dc.document_id
             ORDER BY dc.embedding <=> :embedding
@@ -49,6 +50,11 @@ async def retrieve_chunks(
 
     chunks = []
     for row in result.fetchall():
+        # Convert cosine distance to confidence percentage (0-100)
+        # Distance ranges from 0 (identical) to 2 (opposite)
+        # Typical range for relevant docs is 0.2-0.6
+        distance = row[6]
+        confidence = max(0, min(100, int((1 - distance) * 100)))
         chunks.append({
             "content": row[0],
             "token_count": row[1],
@@ -56,6 +62,7 @@ async def retrieve_chunks(
             "document_title": row[3],
             "source_org": row[4],
             "regulation_ref": row[5],
+            "confidence": confidence,
         })
     return chunks
 

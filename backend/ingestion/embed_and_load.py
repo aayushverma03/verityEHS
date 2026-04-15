@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["openai", "asyncpg", "pdfplumber", "tiktoken"]
+# dependencies = ["openai", "asyncpg", "pymupdf", "tiktoken"]
 # ///
 """Embed chunks and load into PostgreSQL with pgvector."""
 
@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 
 import asyncpg
-import pdfplumber
+import fitz  # pymupdf
 from openai import AsyncOpenAI
 
 from sources import get_source_metadata
@@ -58,8 +58,10 @@ def get_pdf_page_count(filename: str) -> int:
     if not pdf_path.exists():
         return 0
     try:
-        with pdfplumber.open(pdf_path) as pdf:
-            return len(pdf.pages)
+        doc = fitz.open(pdf_path)
+        count = len(doc)
+        doc.close()
+        return count
     except Exception:
         return 0
 
@@ -109,8 +111,8 @@ async def main():
             # Insert document
             doc_id = await conn.fetchval(
                 """
-                INSERT INTO documents (filename, source_org, regulation_ref, title, pillar, page_count, token_count)
-                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                INSERT INTO documents (filename, source_org, regulation_ref, title, pillar, page_count, token_count, doc_type)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                 RETURNING id
                 """,
                 filename,
@@ -120,6 +122,7 @@ async def main():
                 meta["pillar"],
                 page_count,
                 total_tokens,
+                meta.get("doc_type", "guideline"),
             )
             log.info("Inserted document %s (id=%s)", filename, doc_id)
 

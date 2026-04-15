@@ -45,19 +45,19 @@ export default function RegisterPage() {
       <div className="flex flex-col items-center mb-8">
         <Logo variant="mark" className="h-16 w-16 mb-4" />
         <h1 className="text-2xl font-bold">
-          <span className="text-[#0D3D52]">Verity</span>
-          <span className="text-[#0F7B6C] ml-1">EHS</span>
+          <span className="text-stone-800">Verity</span>
+          <span className="text-teal-700 ml-1">EHS</span>
         </h1>
       </div>
-      <Card className="w-full max-w-md glass-card border-0">
+      <Card className="w-full max-w-md bg-white border border-stone-200 shadow-sm">
         <CardHeader>
-          <CardTitle className="text-xl md:text-2xl">{t.auth.register}</CardTitle>
-          <CardDescription>{t.auth.enterDetails}</CardDescription>
+          <CardTitle className="text-xl md:text-2xl text-stone-800">{t.auth.register}</CardTitle>
+          <CardDescription className="text-stone-500">{t.auth.enterDetails}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName">{t.auth.fullName}</Label>
+              <Label htmlFor="fullName" className="text-stone-700">{t.auth.fullName}</Label>
               <Input
                 id="fullName"
                 type="text"
@@ -69,7 +69,7 @@ export default function RegisterPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">{t.auth.email}</Label>
+              <Label htmlFor="email" className="text-stone-700">{t.auth.email}</Label>
               <Input
                 id="email"
                 type="email"
@@ -81,7 +81,7 @@ export default function RegisterPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">{t.auth.password}</Label>
+              <Label htmlFor="password" className="text-stone-700">{t.auth.password}</Label>
               <Input
                 id="password"
                 type="password"
@@ -92,14 +92,14 @@ export default function RegisterPage() {
                 className="min-h-[44px]"
               />
             </div>
-            {error && <p className="text-sm text-red-500">{error}</p>}
+            {error && <p className="text-sm text-red-600">{error}</p>}
             <Button type="submit" className="w-full min-h-[44px] btn-primary" disabled={loading}>
               {loading ? t.auth.creatingAccount : t.auth.register}
             </Button>
           </form>
-          <p className="mt-4 text-center text-sm text-gray-500">
+          <p className="mt-4 text-center text-sm text-stone-500">
             {t.auth.haveAccount}{" "}
-            <Link href="/login" className="text-[#0F7B6C] font-medium hover:underline">
+            <Link href="/login" className="text-teal-700 font-medium hover:text-teal-800 hover:underline">
               {t.auth.signIn}
             </Link>
           </p>

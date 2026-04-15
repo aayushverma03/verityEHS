@@ -1,14 +1,15 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["pdfplumber", "tiktoken", "langdetect"]
+# dependencies = ["pymupdf", "tiktoken", "langdetect"]
 # ///
 """Extract all PDFs from backend/data/raw/ and save chunks to JSON."""
 
 import json
 import logging
+import re
 from pathlib import Path
 
-import pdfplumber
+import fitz  # pymupdf
 import tiktoken
 from langdetect import DetectorFactory, LangDetectException, detect
 
@@ -23,21 +24,46 @@ ENCODING = tiktoken.get_encoding("cl100k_base")
 CHUNK_SIZE = 800
 OVERLAP = 100
 
+
+def repair_text(text: str) -> str:
+    """Fix common PDF extraction issues like missing spaces."""
+    # Insert space between lowercase and uppercase (camelCase issues)
+    text = re.sub(r'([a-z])([A-Z])', r'\1 \2', text)
+    # Insert space after period/comma if followed by letter (no space)
+    text = re.sub(r'([.,:;])([A-Za-z])', r'\1 \2', text)
+    # Insert space between letter and opening paren
+    text = re.sub(r'([a-zA-Z])(\()', r'\1 \2', text)
+    # Insert space between closing paren and letter
+    text = re.sub(r'(\))([a-zA-Z])', r'\1 \2', text)
+    # Fix common concatenated words (lowercase letter followed by common word starts)
+    text = re.sub(r'([a-z])(the|and|for|with|that|this|from|have|must|shall|should|will|can|may)', r'\1 \2', text, flags=re.IGNORECASE)
+    # Normalize multiple spaces
+    text = re.sub(r' +', ' ', text)
+    return text.strip()
+
+
 def extract_pdf(path: Path) -> dict:
-    """Return metadata + full_text from a PDF."""
-    with pdfplumber.open(path) as pdf:
-        meta = pdf.metadata or {}
-        pages = [p.extract_text() or "" for p in pdf.pages]
-        text = "\n\n".join(pages).strip()
+    """Return metadata + full_text from a PDF using pymupdf."""
+    doc = fitz.open(path)
+    meta = doc.metadata or {}
+    pages = []
+    for page in doc:
+        text = page.get_text("text")
+        pages.append(text or "")
+    doc.close()
+
+    raw_text = "\n\n".join(pages).strip()
+    text = repair_text(raw_text)
+
     try:
         lang = detect(text[:3000]) if text else None
     except LangDetectException:
         lang = None
     return {
         "filename": path.name,
-        "title": meta.get("Title"),
-        "author": meta.get("Author"),
-        "subject": meta.get("Subject"),
+        "title": meta.get("title"),
+        "author": meta.get("author"),
+        "subject": meta.get("subject"),
         "page_count": len(pages),
         "text": text,
         "token_count": len(ENCODING.encode(text)),

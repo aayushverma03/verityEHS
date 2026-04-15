@@ -21,12 +21,45 @@ type Citation = {
   source_org: string
   regulation_reference: string
   chunk_excerpt: string
+  confidence: number
+}
+
+type GroupedCitation = {
+  document_id: string
+  document_title: string
+  source_org: string
+  regulation_reference: string
+  confidence: number
+  excerpts: string[]
 }
 
 type Message = {
   role: "user" | "assistant"
   content: string
   citations?: Citation[]
+}
+
+function groupCitations(citations: Citation[]): GroupedCitation[] {
+  const grouped = new Map<string, GroupedCitation>()
+  for (const c of citations) {
+    const existing = grouped.get(c.document_id)
+    if (existing) {
+      existing.excerpts.push(c.chunk_excerpt)
+      if (c.confidence > existing.confidence) {
+        existing.confidence = c.confidence
+      }
+    } else {
+      grouped.set(c.document_id, {
+        document_id: c.document_id,
+        document_title: c.document_title,
+        source_org: c.source_org,
+        regulation_reference: c.regulation_reference,
+        confidence: c.confidence,
+        excerpts: [c.chunk_excerpt],
+      })
+    }
+  }
+  return Array.from(grouped.values()).sort((a, b) => b.confidence - a.confidence)
 }
 
 function SearchContent() {
@@ -40,6 +73,7 @@ function SearchContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [citationsOpen, setCitationsOpen] = useState<Record<number, boolean>>({})
+  const [expandedExcerpts, setExpandedExcerpts] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     if (initialQuery && messages.length === 0) {
@@ -99,7 +133,7 @@ function SearchContent() {
   return (
     <>
       <Nav />
-      <main className="min-h-screen pt-4 pb-20 md:pt-16 md:pb-4 px-4">
+      <main className="min-h-screen pt-20 pb-24 md:pt-24 md:pb-8 px-4">
         <div className="max-w-3xl mx-auto">
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 mb-6">
             <div className="relative flex-1">
@@ -132,16 +166,16 @@ function SearchContent() {
                 <div key={idx}>
                   {msg.role === "user" ? (
                     <div className="flex justify-end mb-2">
-                      <div className="bg-[#0F7B6C] text-white px-4 py-2 rounded-2xl rounded-br-sm max-w-[80%]">
+                      <div className="bg-teal-700 text-white px-4 py-2 rounded-2xl rounded-br-sm max-w-[80%]">
                         {msg.content}
                       </div>
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      <Card className="glass-card">
+                      <Card className="bg-white border border-stone-200">
                         <CardHeader className="pb-2">
                           <div className="flex items-center justify-between">
-                            <CardTitle className="text-lg">{t.search.aiAnswer}</CardTitle>
+                            <CardTitle className="text-lg text-stone-800">{t.search.aiAnswer}</CardTitle>
                             {msg.citations && (
                               <Badge variant="secondary">
                                 {msg.citations.length} {t.search.sources}
@@ -150,58 +184,99 @@ function SearchContent() {
                           </div>
                         </CardHeader>
                         <CardContent>
-                          <div className="prose prose-sm max-w-none text-gray-700">
+                          <div className="prose prose-sm max-w-none text-stone-700 prose-headings:text-stone-800">
                             <ReactMarkdown>{msg.content}</ReactMarkdown>
                           </div>
                         </CardContent>
                       </Card>
 
                       {/* Citations for this message */}
-                      {msg.citations && msg.citations.length > 0 && (
-                        <Collapsible open={citationsOpen[idx]} onOpenChange={() => toggleCitations(idx)}>
-                          <Card>
-                            <CollapsibleTrigger asChild>
-                              <button className="w-full p-4 flex items-center justify-between text-left min-h-[48px]">
-                                <span className="font-medium">
-                                  {t.search.citations} ({msg.citations.length})
-                                </span>
-                                {citationsOpen[idx] ? (
-                                  <ChevronUp className="h-5 w-5 text-gray-500" />
-                                ) : (
-                                  <ChevronDown className="h-5 w-5 text-gray-500" />
-                                )}
-                              </button>
-                            </CollapsibleTrigger>
-                            <CollapsibleContent>
-                              <div className="px-4 pb-4 space-y-3">
-                                {msg.citations.map((citation, i) => (
-                                  <Link
-                                    key={i}
-                                    href={`/documents/${citation.document_id}`}
-                                    className="block border rounded-lg p-3 hover:border-[#0F7B6C] hover:bg-gray-50 transition-colors group"
-                                  >
-                                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                                      <span className="font-medium text-sm group-hover:text-[#0F7B6C]">
-                                        {citation.document_title}
-                                      </span>
-                                      <Badge variant="outline" className="text-xs">
-                                        {citation.source_org}
-                                      </Badge>
-                                      <ExternalLink className="h-3 w-3 text-gray-400 group-hover:text-[#0F7B6C] ml-auto" />
-                                    </div>
-                                    <p className="text-xs text-gray-500 mb-2">
-                                      {citation.regulation_reference}
-                                    </p>
-                                    <p className="text-sm text-gray-600 line-clamp-3">
-                                      {citation.chunk_excerpt}
-                                    </p>
-                                  </Link>
-                                ))}
-                              </div>
-                            </CollapsibleContent>
-                          </Card>
-                        </Collapsible>
-                      )}
+                      {msg.citations && msg.citations.length > 0 && (() => {
+                        const grouped = groupCitations(msg.citations)
+                        return (
+                          <Collapsible open={citationsOpen[idx]} onOpenChange={() => toggleCitations(idx)}>
+                            <Card className="bg-white border border-stone-200">
+                              <CollapsibleTrigger asChild>
+                                <button className="w-full p-4 flex items-center justify-between text-left min-h-[48px]">
+                                  <span className="font-medium text-stone-700">
+                                    {t.search.citations} ({grouped.length})
+                                  </span>
+                                  {citationsOpen[idx] ? (
+                                    <ChevronUp className="h-5 w-5 text-stone-500" />
+                                  ) : (
+                                    <ChevronDown className="h-5 w-5 text-stone-500" />
+                                  )}
+                                </button>
+                              </CollapsibleTrigger>
+                              <CollapsibleContent>
+                                <div className="px-4 pb-4 space-y-3">
+                                  {grouped.map((citation) => {
+                                    const isExpanded = expandedExcerpts[citation.document_id]
+                                    const hasMore = citation.excerpts.length > 1
+                                    return (
+                                      <div
+                                        key={citation.document_id}
+                                        className="border border-stone-200 rounded-lg p-3 hover:border-teal-600 hover:bg-stone-50 transition-colors group"
+                                      >
+                                        <Link href={`/documents/${citation.document_id}`}>
+                                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                                            <span className="font-medium text-sm text-stone-800 group-hover:text-teal-700">
+                                              {citation.document_title}
+                                            </span>
+                                            <Badge variant="outline" className="text-xs">
+                                              {citation.source_org}
+                                            </Badge>
+                                            <Badge
+                                              variant="secondary"
+                                              className={`text-xs ${
+                                                citation.confidence >= 70
+                                                  ? "bg-emerald-100 text-emerald-700"
+                                                  : citation.confidence >= 50
+                                                    ? "bg-amber-100 text-amber-700"
+                                                    : "bg-stone-100 text-stone-600"
+                                              }`}
+                                            >
+                                              {citation.confidence}%
+                                            </Badge>
+                                            <ExternalLink className="h-3 w-3 text-stone-400 group-hover:text-teal-700 ml-auto" />
+                                          </div>
+                                          <p className="text-xs text-stone-500 mb-2">
+                                            {citation.regulation_reference}
+                                          </p>
+                                        </Link>
+                                        <p className="text-sm text-stone-600 line-clamp-3">
+                                          {citation.excerpts[0]}
+                                        </p>
+                                        {isExpanded && citation.excerpts.slice(1).map((excerpt, i) => (
+                                          <p key={i} className="text-sm text-stone-600 line-clamp-3 mt-2 pt-2 border-t border-stone-100">
+                                            {excerpt}
+                                          </p>
+                                        ))}
+                                        {hasMore && (
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation()
+                                              setExpandedExcerpts((prev) => ({
+                                                ...prev,
+                                                [citation.document_id]: !prev[citation.document_id],
+                                              }))
+                                            }}
+                                            className="text-xs text-teal-700 hover:text-teal-800 mt-2 font-medium"
+                                          >
+                                            {isExpanded
+                                              ? (locale === "ko" ? "접기" : "Show less")
+                                              : (locale === "ko" ? `+${citation.excerpts.length - 1}개 더 보기` : `Show ${citation.excerpts.length - 1} more`)}
+                                          </button>
+                                        )}
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              </CollapsibleContent>
+                            </Card>
+                          </Collapsible>
+                        )
+                      })()}
                     </div>
                   )}
                 </div>
@@ -209,10 +284,10 @@ function SearchContent() {
 
               {/* Loading indicator */}
               {loading && (
-                <Card className="glass-card">
+                <Card className="bg-white border border-stone-200">
                   <CardContent className="py-8 flex flex-col items-center justify-center text-center">
-                    <Loader2 className="h-8 w-8 text-[#0F7B6C] animate-spin mb-3" />
-                    <p className="text-base font-medium text-gray-700">
+                    <Loader2 className="h-8 w-8 text-teal-700 animate-spin mb-3" />
+                    <p className="text-base font-medium text-stone-700">
                       {locale === "ko" ? "AI 응답 생성 중..." : "Generating AI response..."}
                     </p>
                   </CardContent>
@@ -239,13 +314,13 @@ function SearchContent() {
 
           {/* Initial loading state */}
           {loading && messages.length === 0 && (
-            <Card className="glass-card">
+            <Card className="bg-white border border-stone-200">
               <CardContent className="py-12 flex flex-col items-center justify-center text-center">
-                <Loader2 className="h-10 w-10 text-[#0F7B6C] animate-spin mb-4" />
-                <p className="text-lg font-medium text-gray-700">
+                <Loader2 className="h-10 w-10 text-teal-700 animate-spin mb-4" />
+                <p className="text-lg font-medium text-stone-700">
                   {locale === "ko" ? "AI 응답 생성 중..." : "Generating AI response..."}
                 </p>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-stone-500 mt-1">
                   {locale === "ko" ? "잠시만 기다려 주세요" : "This may take a moment"}
                 </p>
               </CardContent>

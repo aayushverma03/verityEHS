@@ -80,18 +80,18 @@ export default function DocumentDetailPage() {
   return (
     <>
       <Nav />
-      <main className="min-h-screen pt-4 pb-20 md:pt-16 md:pb-4 px-4">
+      <main className="min-h-screen pt-20 pb-24 md:pt-24 md:pb-8 px-4">
         <div className="max-w-3xl mx-auto">
           <Link
             href="/documents"
-            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4 min-h-[44px]"
+            className="inline-flex items-center text-sm text-stone-600 hover:text-stone-900 mb-4 min-h-[44px]"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to library
           </Link>
 
           {loading ? (
-            <Card>
+            <Card className="bg-white border border-stone-200">
               <CardHeader>
                 <Skeleton className="h-8 w-3/4" />
               </CardHeader>
@@ -102,9 +102,9 @@ export default function DocumentDetailPage() {
               </CardContent>
             </Card>
           ) : error ? (
-            <p className="text-red-500">{error}</p>
+            <p className="text-red-600">{error}</p>
           ) : doc ? (
-            <Card>
+            <Card className="bg-white border border-stone-200">
               <CardHeader>
                 <CardTitle className="text-xl md:text-2xl">{doc.title}</CardTitle>
               </CardHeader>
@@ -117,20 +117,20 @@ export default function DocumentDetailPage() {
 
                 <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div>
-                    <dt className="text-gray-500">Regulation Reference</dt>
-                    <dd className="font-medium">{doc.regulation_ref}</dd>
+                    <dt className="text-stone-500">Regulation Reference</dt>
+                    <dd className="font-medium text-stone-800">{doc.regulation_ref}</dd>
                   </div>
                   <div>
-                    <dt className="text-gray-500">Pages</dt>
-                    <dd className="font-medium">{doc.page_count}</dd>
+                    <dt className="text-stone-500">Pages</dt>
+                    <dd className="font-medium text-stone-800">{doc.page_count}</dd>
                   </div>
                   <div>
-                    <dt className="text-gray-500">Filename</dt>
-                    <dd className="font-medium break-all">{doc.filename}</dd>
+                    <dt className="text-stone-500">Filename</dt>
+                    <dd className="font-medium text-stone-800 break-all">{doc.filename}</dd>
                   </div>
                   <div>
-                    <dt className="text-gray-500">Ingested</dt>
-                    <dd className="font-medium">
+                    <dt className="text-stone-500">Ingested</dt>
+                    <dd className="font-medium text-stone-800">
                       {new Date(doc.ingested_at).toLocaleDateString()}
                     </dd>
                   </div>

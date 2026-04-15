@@ -40,6 +40,7 @@ class DocumentListItem(BaseModel):
     pillar: str
     language: str
     page_count: int
+    doc_type: Optional[str] = "guideline"
 
 
 class DocumentDetail(BaseModel):
@@ -68,6 +69,7 @@ class Citation(BaseModel):
     source_org: str
     regulation_reference: Optional[str]
     chunk_excerpt: str
+    confidence: int  # 0-100 percentage
 
 
 class SearchResponse(BaseModel):

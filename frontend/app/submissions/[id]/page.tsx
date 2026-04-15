@@ -218,14 +218,14 @@ export default function SubmissionPage() {
     return (
       <>
         <Nav />
-        <main className="min-h-screen pt-4 pb-20 md:pt-16 md:pb-4 px-4">
+        <main className="min-h-screen pt-20 pb-24 md:pt-24 md:pb-8 px-4">
           <div className="max-w-2xl mx-auto text-center py-12">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="h-8 w-8 text-green-600" />
+            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check className="h-8 w-8 text-emerald-600" />
             </div>
-            <h1 className="text-2xl font-bold mb-2">Compliance Report Downloaded</h1>
-            <p className="text-gray-600 mb-6">Your submission has been recorded successfully.</p>
-            <Button asChild className="min-h-[44px]">
+            <h1 className="text-2xl font-bold text-stone-800 mb-2">Compliance Report Downloaded</h1>
+            <p className="text-stone-500 mb-6">Your submission has been recorded successfully.</p>
+            <Button asChild className="min-h-[44px] btn-primary">
               <Link href="/approvals">Back to Permits</Link>
             </Button>
           </div>
@@ -237,27 +237,27 @@ export default function SubmissionPage() {
   return (
     <>
       <Nav />
-      <main className="min-h-screen pt-4 pb-20 md:pt-16 md:pb-4 px-4">
+      <main className="min-h-screen pt-20 pb-24 md:pt-24 md:pb-8 px-4">
         <div className="max-w-2xl mx-auto">
           <Link
             href={`/approvals/${approvalId}`}
-            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4 min-h-[44px]"
+            className="inline-flex items-center text-sm text-stone-600 hover:text-stone-900 mb-4 min-h-[44px]"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to permit
           </Link>
 
           {/* Progress bar - fixed on mobile */}
-          <div className="sticky top-0 md:top-14 z-30 bg-white py-3 -mx-4 px-4 border-b mb-4">
+          <div className="sticky top-0 md:top-14 z-30 bg-white py-3 -mx-4 px-4 border-b border-stone-200 mb-4">
             <div className="flex items-center justify-between text-sm mb-1">
-              <span className="font-medium">Progress</span>
-              <span>
+              <span className="font-medium text-stone-800">Progress</span>
+              <span className="text-stone-600">
                 {completedCount} of {totalCount} steps
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-stone-200 rounded-full h-2">
               <div
-                className="bg-green-500 h-2 rounded-full transition-all"
+                className="bg-teal-600 h-2 rounded-full transition-all"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -266,7 +266,7 @@ export default function SubmissionPage() {
           {loadingSteps ? (
             <div className="space-y-3">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Card key={i}>
+                <Card key={i} className="bg-white border border-stone-200">
                   <CardContent className="p-4">
                     <Skeleton className="h-5 w-3/4 mb-2" />
                     <Skeleton className="h-4 w-1/2" />
@@ -275,16 +275,16 @@ export default function SubmissionPage() {
               ))}
             </div>
           ) : error ? (
-            <p className="text-red-500">{error}</p>
+            <p className="text-red-600">{error}</p>
           ) : (
             <>
               {approval && (
-                <Card className="mb-4">
+                <Card className="mb-4 bg-white border border-stone-200">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg">{approval.operation_type}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-gray-600">{approval.site_name}</p>
+                    <p className="text-sm text-stone-500">{approval.site_name}</p>
                   </CardContent>
                 </Card>
               )}
@@ -296,7 +296,7 @@ export default function SubmissionPage() {
                   const photoError = photoErrors[step.label]
 
                   return (
-                    <Card key={i} className={isChecked ? "border-green-200 bg-green-50/50" : ""}>
+                    <Card key={i} className={isChecked ? "border-emerald-300 bg-emerald-50/50" : "bg-white border border-stone-200"}>
                       <CardContent className="p-4">
                         <div className="flex items-start gap-3">
                           <Checkbox
@@ -310,11 +310,11 @@ export default function SubmissionPage() {
                           <div className="flex-1 min-w-0">
                             <Label
                               htmlFor={`step-${i}`}
-                              className="text-sm font-medium cursor-pointer"
+                              className="text-sm font-medium text-stone-800 cursor-pointer"
                             >
                               {step.label}
                             </Label>
-                            <p className="text-xs text-gray-500 mt-0.5">{step.regulation_ref}</p>
+                            <p className="text-xs text-stone-500 mt-0.5">{step.regulation_ref}</p>
 
                             {step.requires_photo && (
                               <div className="mt-3">
@@ -331,8 +331,8 @@ export default function SubmissionPage() {
                                   className="hidden"
                                 />
                                 {photo ? (
-                                  <div className="flex items-center justify-between bg-gray-100 rounded p-2">
-                                    <span className="text-sm text-gray-700 truncate">
+                                  <div className="flex items-center justify-between bg-stone-100 rounded-lg p-2">
+                                    <span className="text-sm text-stone-700 truncate">
                                       {photo.file.name} ({(photo.file.size / 1024).toFixed(0)} KB)
                                     </span>
                                     <Button
@@ -355,7 +355,7 @@ export default function SubmissionPage() {
                                   </Button>
                                 )}
                                 {photoError && (
-                                  <p className="text-xs text-red-500 mt-1">{photoError}</p>
+                                  <p className="text-xs text-red-600 mt-1">{photoError}</p>
                                 )}
                               </div>
                             )}
@@ -369,7 +369,7 @@ export default function SubmissionPage() {
 
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="notes">Additional Notes (optional)</Label>
+                  <Label htmlFor="notes" className="text-stone-700">Additional Notes (optional)</Label>
                   <Textarea
                     id="notes"
                     value={notes}
@@ -380,12 +380,12 @@ export default function SubmissionPage() {
                   />
                 </div>
 
-                {error && <p className="text-red-500 text-sm">{error}</p>}
+                {error && <p className="text-red-600 text-sm">{error}</p>}
 
                 <Button
                   onClick={handleSubmit}
                   disabled={!canSubmit || submitting}
-                  className="w-full min-h-[48px]"
+                  className="w-full min-h-[48px] btn-primary"
                 >
                   {submitting ? "Checking compliance..." : "Submit Checklist"}
                 </Button>

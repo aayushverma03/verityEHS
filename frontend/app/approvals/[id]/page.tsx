@@ -85,18 +85,18 @@ export default function ApprovalDetailPage() {
   return (
     <>
       <Nav />
-      <main className="min-h-screen pt-4 pb-20 md:pt-16 md:pb-4 px-4">
+      <main className="min-h-screen pt-20 pb-24 md:pt-24 md:pb-8 px-4">
         <div className="max-w-3xl mx-auto">
           <Link
             href="/approvals"
-            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4 min-h-[44px]"
+            className="inline-flex items-center text-sm text-stone-600 hover:text-stone-900 mb-4 min-h-[44px]"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to permits
           </Link>
 
           {loading ? (
-            <Card>
+            <Card className="bg-white border border-stone-200">
               <CardHeader>
                 <Skeleton className="h-8 w-1/2" />
               </CardHeader>
@@ -107,10 +107,10 @@ export default function ApprovalDetailPage() {
               </CardContent>
             </Card>
           ) : error ? (
-            <p className="text-red-500">{error}</p>
+            <p className="text-red-600">{error}</p>
           ) : approval ? (
             <div className="space-y-4">
-              <Card>
+              <Card className="bg-white border border-stone-200">
                 <CardHeader>
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <CardTitle className="text-xl md:text-2xl">{approval.operation_type}</CardTitle>
@@ -123,12 +123,12 @@ export default function ApprovalDetailPage() {
                 <CardContent className="space-y-4">
                   <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                     <div>
-                      <dt className="text-gray-500">Site</dt>
-                      <dd className="font-medium">{approval.site_name}</dd>
+                      <dt className="text-stone-500">Site</dt>
+                      <dd className="font-medium text-stone-800">{approval.site_name}</dd>
                     </div>
                     <div>
-                      <dt className="text-gray-500">Planned Period</dt>
-                      <dd className="font-medium">
+                      <dt className="text-stone-500">Planned Period</dt>
+                      <dd className="font-medium text-stone-800">
                         {new Date(approval.planned_start).toLocaleString()} -{" "}
                         {new Date(approval.planned_end).toLocaleString()}
                       </dd>
@@ -137,13 +137,13 @@ export default function ApprovalDetailPage() {
 
                   {approval.risk_notes && (
                     <div>
-                      <h4 className="text-sm text-gray-500 mb-1">Risk Notes</h4>
-                      <p className="text-sm">{approval.risk_notes}</p>
+                      <h4 className="text-sm text-stone-500 mb-1">Risk Notes</h4>
+                      <p className="text-sm text-stone-700">{approval.risk_notes}</p>
                     </div>
                   )}
 
                   {approval.reviewer_notes && (
-                    <div className="p-3 bg-red-50 rounded-lg">
+                    <div className="p-3 bg-red-50 rounded-lg border border-red-200">
                       <h4 className="text-sm font-medium text-red-800 mb-1">Reviewer Notes</h4>
                       <p className="text-sm text-red-700">{approval.reviewer_notes}</p>
                     </div>
@@ -152,7 +152,7 @@ export default function ApprovalDetailPage() {
               </Card>
 
               {/* Status Timeline */}
-              <Card>
+              <Card className="bg-white border border-stone-200">
                 <CardHeader>
                   <CardTitle className="text-lg">Status Timeline</CardTitle>
                 </CardHeader>
@@ -160,12 +160,12 @@ export default function ApprovalDetailPage() {
                   <div className="space-y-4">
                     <div className="flex gap-3">
                       <div className="flex flex-col items-center">
-                        <div className="w-3 h-3 rounded-full bg-green-500" />
-                        <div className="w-0.5 h-full bg-gray-200" />
+                        <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                        <div className="w-0.5 h-full bg-stone-200" />
                       </div>
                       <div className="pb-4">
-                        <p className="font-medium text-sm">Created</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="font-medium text-sm text-stone-800">Created</p>
+                        <p className="text-sm text-stone-500">
                           {new Date(approval.created_at).toLocaleString()}
                         </p>
                       </div>
@@ -176,13 +176,13 @@ export default function ApprovalDetailPage() {
                         <div className="flex flex-col items-center">
                           <div
                             className={`w-3 h-3 rounded-full ${
-                              approval.status === "approved" ? "bg-green-500" : "bg-red-500"
+                              approval.status === "approved" ? "bg-emerald-500" : "bg-red-500"
                             }`}
                           />
                         </div>
                         <div>
-                          <p className="font-medium text-sm capitalize">{approval.status}</p>
-                          <p className="text-sm text-gray-500">
+                          <p className="font-medium text-sm text-stone-800 capitalize">{approval.status}</p>
+                          <p className="text-sm text-stone-500">
                             {new Date(approval.updated_at).toLocaleString()}
                           </p>
                         </div>
@@ -195,7 +195,7 @@ export default function ApprovalDetailPage() {
                           <div className="w-3 h-3 rounded-full bg-amber-500 animate-pulse" />
                         </div>
                         <div>
-                          <p className="font-medium text-sm">Awaiting Review</p>
+                          <p className="font-medium text-sm text-stone-800">Awaiting Review</p>
                         </div>
                       </div>
                     )}
@@ -207,7 +207,7 @@ export default function ApprovalDetailPage() {
               {approval.status === "approved" && (
                 <Button
                   onClick={() => router.push(`/submissions/${approval.id}`)}
-                  className="w-full min-h-[48px]"
+                  className="w-full min-h-[48px] btn-primary"
                 >
                   <ClipboardCheck className="h-5 w-5 mr-2" />
                   Submit Compliance Proof

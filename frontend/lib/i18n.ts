@@ -30,7 +30,7 @@ const translations = {
     // Home
     home: {
       title: "Verity EHS",
-      subtitle: "AI-powered compliance for the chemical industry",
+      subtitle: "AI-Powered Compliance Management Tool",
       searchPlaceholder: "Ask a chemical EHS question...",
     },
     // Documents
@@ -194,7 +194,7 @@ const translations = {
     // Home
     home: {
       title: "Verity EHS",
-      subtitle: "화학 산업을 위한 AI 기반 규정 준수",
+      subtitle: "AI 기반 규정 준수 관리 도구",
       searchPlaceholder: "화학 EHS 질문을 입력하세요...",
     },
     // Documents

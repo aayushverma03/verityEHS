@@ -32,10 +32,8 @@ export default function FAQPage() {
         <div className="max-w-3xl mx-auto pt-16 md:pt-8">
           {/* Header */}
           <div className="text-center mb-10">
-            <h1 className="section-title mb-3">
-              <span className="gradient-text">{t.faq.title}</span>
-            </h1>
-            <p className="text-gray-500">{t.faq.subtitle}</p>
+            <h1 className="section-title mb-3">{t.faq.title}</h1>
+            <p className="text-stone-500">{t.faq.subtitle}</p>
           </div>
 
           {/* FAQ Accordion */}
@@ -46,34 +44,34 @@ export default function FAQPage() {
                 <div
                   key={item.q}
                   className={cn(
-                    "glass-card rounded-2xl overflow-hidden transition-all duration-300",
-                    isOpen && "shadow-lg shadow-gray-200/50"
+                    "bg-white border border-stone-200 rounded-xl overflow-hidden transition-all duration-200",
+                    isOpen && "shadow-md border-stone-300"
                   )}
                 >
                   <button
                     onClick={() => setOpenIndex(isOpen ? null : index)}
                     className="w-full flex items-center justify-between p-5 text-left"
                   >
-                    <span className="font-medium text-gray-900 pr-4">
+                    <span className="font-medium text-stone-800 pr-4">
                       {t.faq[item.q]}
                     </span>
                     <ChevronDown
                       className={cn(
-                        "h-5 w-5 text-gray-400 flex-shrink-0 transition-transform duration-300",
-                        isOpen && "rotate-180 text-[#0F7B6C]"
+                        "h-5 w-5 text-stone-400 flex-shrink-0 transition-transform duration-200",
+                        isOpen && "rotate-180 text-teal-700"
                       )}
                     />
                   </button>
                   <div
                     className={cn(
-                      "grid transition-all duration-300",
+                      "grid transition-all duration-200",
                       isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
                     )}
                   >
                     <div className="overflow-hidden">
                       <div className="px-5 pb-5 pt-0">
-                        <div className="h-px bg-gray-200/60 mb-4" />
-                        <p className="text-gray-600 leading-relaxed">
+                        <div className="h-px bg-stone-200 mb-4" />
+                        <p className="text-stone-600 leading-relaxed">
                           {t.faq[item.a]}
                         </p>
                       </div>

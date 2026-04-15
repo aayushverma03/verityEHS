@@ -4,74 +4,79 @@
 
 @layer base {
   :root {
-    --gradient-start: #f8fafb;
-    --gradient-end: #e8f4f2;
-    --verity-teal: #0F7B6C;
-    --verity-blue: #0A5C8A;
-    --verity-dark: #0D3D52;
+    --bg-primary: #FAFAF9;
+    --bg-white: #FFFFFF;
+    --text-primary: #292524;
+    --text-secondary: #78716C;
+    --text-muted: #A8A29E;
+    --accent: #0F766E;
+    --accent-hover: #115E59;
+    --accent-light: #CCFBF1;
+    --border: #E7E5E4;
+    --border-light: #F5F5F4;
   }
 
   * {
-    @apply border-gray-200/60;
+    @apply border-stone-200;
   }
 
   body {
-    @apply text-gray-900 antialiased;
-    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    background-attachment: fixed;
+    @apply antialiased;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     min-height: 100vh;
   }
 }
 
 @layer components {
-  .glass-card {
-    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-lg shadow-gray-200/50;
+  .card {
+    @apply bg-white border border-stone-200 shadow-sm;
   }
 
-  .glass-card-hover {
-    @apply glass-card transition-all duration-300 hover:bg-white/90 hover:shadow-xl hover:shadow-gray-300/50 hover:-translate-y-0.5;
+  .card-hover {
+    @apply card transition-all duration-200 hover:shadow-md hover:border-stone-300;
   }
 
-  .gradient-text {
-    @apply bg-gradient-to-r from-[#0F7B6C] to-[#0A5C8A] bg-clip-text text-transparent;
+  .accent-text {
+    color: var(--accent);
   }
 
   .btn-primary {
-    @apply bg-gradient-to-r from-[#0F7B6C] to-[#0A5C8A] text-white shadow-lg shadow-teal-500/25 hover:shadow-xl hover:shadow-teal-500/40 transition-all duration-300 hover:-translate-y-0.5;
+    @apply bg-teal-700 text-white transition-colors duration-200 hover:bg-teal-800;
   }
 
   .btn-secondary {
-    @apply bg-white/80 backdrop-blur border border-gray-200/60 text-gray-700 hover:bg-white hover:border-gray-300 transition-all duration-300;
+    @apply bg-white border border-stone-300 text-stone-700 hover:bg-stone-50 hover:border-stone-400 transition-colors duration-200;
   }
 
   .filter-chip {
-    @apply px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 min-h-[40px];
+    @apply px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 min-h-[40px];
   }
 
   .filter-chip-active {
-    @apply filter-chip bg-gradient-to-r from-[#0F7B6C] to-[#0A5C8A] text-white shadow-md shadow-teal-500/25;
+    @apply filter-chip bg-teal-700 text-white;
   }
 
   .filter-chip-inactive {
-    @apply filter-chip bg-white/60 text-gray-600 hover:bg-white hover:text-gray-900 border border-gray-200/60;
+    @apply filter-chip bg-white text-stone-600 hover:bg-stone-100 hover:text-stone-800 border border-stone-300;
   }
 
   .page-container {
-    @apply min-h-screen pt-4 pb-24 md:pt-20 md:pb-8 px-4;
+    @apply min-h-screen pt-20 pb-24 md:pt-24 md:pb-8 px-4;
   }
 
   .section-title {
-    @apply text-2xl md:text-4xl font-bold tracking-tight;
+    @apply text-2xl md:text-4xl font-bold tracking-tight text-stone-800;
   }
 }
 
 @layer utilities {
   .animate-fade-in {
-    animation: fadeIn 0.5s ease-out;
+    animation: fadeIn 0.4s ease-out;
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
   }
 }
