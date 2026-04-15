@@ -31,31 +31,36 @@ export function Nav() {
   return (
     <>
       {/* Desktop top nav */}
-      <nav className="hidden md:flex fixed top-0 left-0 right-0 h-14 border-b bg-white z-40 items-center px-4">
-        <Link href="/" className="font-semibold text-lg mr-8">
+      <nav className="hidden md:flex fixed top-0 left-0 right-0 h-16 bg-white/70 backdrop-blur-xl border-b border-gray-200/60 z-40 items-center px-6 shadow-sm">
+        <Link href="/" className="font-bold text-xl gradient-text mr-10">
           EHS Platform
         </Link>
         <div className="flex gap-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                pathname === item.href
-                  ? "bg-gray-100 text-gray-900"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              )}
-            >
-              {t.nav[item.key]}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const Icon = item.icon
+            const isActive = pathname === item.href
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300",
+                  isActive
+                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/25"
+                    : "text-gray-600 hover:bg-gray-100/80 hover:text-gray-900"
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                {t.nav[item.key]}
+              </Link>
+            )
+          })}
         </div>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-3">
           <LanguageToggle />
           <button
             onClick={handleLogout}
-            className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900"
+            className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-xl transition-all duration-300"
           >
             {t.nav.signOut}
           </button>
@@ -63,7 +68,7 @@ export function Nav() {
       </nav>
 
       {/* Mobile bottom nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 border-t bg-white z-40 flex items-center justify-around px-2">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-xl border-t border-gray-200/60 z-40 flex items-center justify-around px-2 pb-safe">
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
@@ -72,12 +77,14 @@ export function Nav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-2 rounded-md",
-                isActive ? "text-gray-900" : "text-gray-500"
+                "flex flex-col items-center justify-center min-w-[56px] min-h-[56px] px-3 rounded-2xl transition-all duration-300",
+                isActive
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25"
+                  : "text-gray-500 hover:bg-gray-100/80"
               )}
             >
-              <Icon className="h-5 w-5" />
-              <span className="text-xs mt-1">{t.nav[item.key]}</span>
+              <Icon className={cn("h-5 w-5", isActive && "mb-0.5")} />
+              <span className={cn("text-xs mt-1 font-medium", isActive && "text-white")}>{t.nav[item.key]}</span>
             </Link>
           )
         })}

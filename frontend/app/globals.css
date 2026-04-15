@@ -3,10 +3,74 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    @apply border-gray-200;
+  :root {
+    --gradient-start: #f8fafc;
+    --gradient-end: #e2e8f0;
+    --accent-blue: #3b82f6;
+    --accent-indigo: #6366f1;
   }
+
+  * {
+    @apply border-gray-200/60;
+  }
+
   body {
-    @apply bg-white text-gray-950;
+    @apply text-gray-900 antialiased;
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-lg shadow-gray-200/50;
+  }
+
+  .glass-card-hover {
+    @apply glass-card transition-all duration-300 hover:bg-white/90 hover:shadow-xl hover:shadow-gray-300/50 hover:-translate-y-0.5;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300 hover:-translate-y-0.5;
+  }
+
+  .btn-secondary {
+    @apply bg-white/80 backdrop-blur border border-gray-200/60 text-gray-700 hover:bg-white hover:border-gray-300 transition-all duration-300;
+  }
+
+  .filter-chip {
+    @apply px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 min-h-[40px];
+  }
+
+  .filter-chip-active {
+    @apply filter-chip bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/25;
+  }
+
+  .filter-chip-inactive {
+    @apply filter-chip bg-white/60 text-gray-600 hover:bg-white hover:text-gray-900 border border-gray-200/60;
+  }
+
+  .page-container {
+    @apply min-h-screen pt-4 pb-24 md:pt-20 md:pb-8 px-4;
+  }
+
+  .section-title {
+    @apply text-2xl md:text-4xl font-bold tracking-tight;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 }
