@@ -47,7 +47,7 @@ const translations = {
     // Search
     search: {
       resultsFor: "Results for:",
-      aiAnswer: "AI Answer",
+      aiAnswer: "Verity IQ Answer",
       sources: "sources",
       citations: "Citations",
       noResults: "No results found.",
@@ -211,7 +211,7 @@ const translations = {
     // Search
     search: {
       resultsFor: "검색 결과:",
-      aiAnswer: "AI 답변",
+      aiAnswer: "Verity IQ 답변",
       sources: "출처",
       citations: "인용",
       noResults: "결과를 찾을 수 없습니다.",

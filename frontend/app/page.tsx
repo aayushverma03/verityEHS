@@ -1,13 +1,14 @@
 // Home page for Verity EHS
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { Search, Shield, FileText, HelpCircle } from "lucide-react"
+import { Search, Shield, FileText, HelpCircle, Clock } from "lucide-react"
 import { Nav } from "@/components/nav"
 import { useLanguage } from "@/components/language-provider"
 import { Logo } from "@/components/logo"
 import Link from "next/link"
+import { getSearchHistory, addToSearchHistory, clearSearchHistory } from "@/lib/search-history"
 
 const searchSuggestions = {
   en: [
@@ -31,6 +32,13 @@ export default function Home() {
   const { t, locale } = useLanguage()
   const [query, setQuery] = useState("")
   const [suggestionIndex, setSuggestionIndex] = useState(0)
+  const [searchHistory, setSearchHistory] = useState<string[]>([])
+  const [showHistory, setShowHistory] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setSearchHistory(getSearchHistory())
+  }, [])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -39,11 +47,29 @@ export default function Home() {
     return () => clearInterval(interval)
   }, [])
 
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowHistory(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (query.trim()) {
+      addToSearchHistory(query.trim())
       router.push(`/search?q=${encodeURIComponent(query.trim())}`)
     }
+  }
+
+  function handleHistoryClick(item: string) {
+    setQuery(item)
+    setShowHistory(false)
+    addToSearchHistory(item)
+    router.push(`/search?q=${encodeURIComponent(item)}`)
   }
 
   const currentSuggestion = locale === "ko"
@@ -78,15 +104,47 @@ export default function Home() {
           {/* Search */}
           <form onSubmit={handleSubmit} className="mb-10">
             <div className="bg-white rounded-2xl p-2 flex flex-col sm:flex-row gap-2 shadow-sm border border-stone-200">
-              <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400" />
+              <div className="relative flex-1" ref={searchRef}>
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400 z-10" />
                 <input
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
+                  onFocus={() => searchHistory.length > 0 && setShowHistory(true)}
                   placeholder={currentSuggestion}
                   className="w-full h-14 pl-12 pr-4 text-base bg-transparent border-0 focus:outline-none focus:ring-0 placeholder:text-stone-400 transition-all duration-300"
                 />
+                {showHistory && searchHistory.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-stone-200 rounded-xl shadow-lg z-20 overflow-hidden">
+                    <div className="flex items-center justify-between px-4 py-2.5 border-b border-stone-100">
+                      <span className="text-xs font-medium text-stone-500 uppercase tracking-wide">
+                        {locale === "ko" ? "최근 검색" : "Recent Searches"}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          clearSearchHistory()
+                          setSearchHistory([])
+                          setShowHistory(false)
+                        }}
+                        className="text-xs text-stone-400 hover:text-stone-600"
+                      >
+                        {locale === "ko" ? "지우기" : "Clear"}
+                      </button>
+                    </div>
+                    {searchHistory.map((item, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => handleHistoryClick(item)}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-stone-50 transition-colors"
+                      >
+                        <Clock className="h-4 w-4 text-stone-400 flex-shrink-0" />
+                        <span className="text-sm text-stone-700 truncate">{item}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               <button
                 type="submit"

@@ -1,11 +1,11 @@
 // Search results page with markdown rendering and follow-up questions
 "use client"
 
-import { useEffect, useState, Suspense } from "react"
+import { useEffect, useState, Suspense, useRef } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import ReactMarkdown from "react-markdown"
-import { Search, ChevronDown, ChevronUp, ExternalLink, Loader2, Send } from "lucide-react"
+import { Search, ChevronDown, ChevronUp, ExternalLink, Send, Clock, X } from "lucide-react"
 import { Nav } from "@/components/nav"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { useLanguage } from "@/components/language-provider"
 import { authHeaders } from "@/lib/auth"
+import { getSearchHistory, addToSearchHistory, clearSearchHistory } from "@/lib/search-history"
 
 type Citation = {
   document_id: string
@@ -74,6 +75,23 @@ function SearchContent() {
   const [error, setError] = useState("")
   const [citationsOpen, setCitationsOpen] = useState<Record<number, boolean>>({})
   const [expandedExcerpts, setExpandedExcerpts] = useState<Record<string, boolean>>({})
+  const [searchHistory, setSearchHistory] = useState<string[]>([])
+  const [showHistory, setShowHistory] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setSearchHistory(getSearchHistory())
+  }, [])
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowHistory(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   useEffect(() => {
     if (initialQuery && messages.length === 0) {
@@ -84,6 +102,9 @@ function SearchContent() {
   async function performSearch(q: string) {
     setLoading(true)
     setError("")
+    setShowHistory(false)
+    addToSearchHistory(q)
+    setSearchHistory(getSearchHistory())
 
     // Add user message
     setMessages((prev) => [...prev, { role: "user", content: q }])
@@ -136,15 +157,52 @@ function SearchContent() {
       <main className="min-h-screen pt-20 pb-24 md:pt-24 md:pb-8 px-4">
         <div className="max-w-3xl mx-auto">
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <div className="relative flex-1" ref={searchRef}>
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 z-10" />
               <Input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                onFocus={() => searchHistory.length > 0 && setShowHistory(true)}
                 placeholder={t.home.searchPlaceholder}
                 className="pl-10 min-h-[48px] text-base"
               />
+              {showHistory && searchHistory.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-stone-200 rounded-lg shadow-lg z-20 overflow-hidden">
+                  <div className="flex items-center justify-between px-3 py-2 border-b border-stone-100">
+                    <span className="text-xs font-medium text-stone-500 uppercase tracking-wide">
+                      {locale === "ko" ? "최근 검색" : "Recent Searches"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        clearSearchHistory()
+                        setSearchHistory([])
+                        setShowHistory(false)
+                      }}
+                      className="text-xs text-stone-400 hover:text-stone-600"
+                    >
+                      {locale === "ko" ? "지우기" : "Clear"}
+                    </button>
+                  </div>
+                  {searchHistory.map((item, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => {
+                        setQuery(item)
+                        setShowHistory(false)
+                        setMessages([])
+                        router.push(`/search?q=${encodeURIComponent(item)}`)
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-stone-50 transition-colors"
+                    >
+                      <Clock className="h-4 w-4 text-stone-400 flex-shrink-0" />
+                      <span className="text-sm text-stone-700 truncate">{item}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <Button type="submit" className="min-h-[48px] min-w-[100px]">
               {t.common.search}
@@ -184,8 +242,18 @@ function SearchContent() {
                           </div>
                         </CardHeader>
                         <CardContent>
-                          <div className="prose prose-sm max-w-none text-stone-700 prose-headings:text-stone-800">
-                            <ReactMarkdown>{msg.content}</ReactMarkdown>
+                          <div className="max-w-none text-stone-700">
+                            <ReactMarkdown
+                              components={{
+                                p: (props) => <p className="mb-3 leading-7 last:mb-0">{props.children}</p>,
+                                ul: (props) => <ul className="mb-3 ml-6 list-disc space-y-1">{props.children}</ul>,
+                                ol: (props) => <ol className="mb-3 ml-6 list-decimal space-y-1">{props.children}</ol>,
+                                li: (props) => <li className="leading-7">{props.children}</li>,
+                                strong: (props) => <strong className="font-semibold text-stone-900">{props.children}</strong>,
+                              }}
+                            >
+                              {msg.content}
+                            </ReactMarkdown>
                           </div>
                         </CardContent>
                       </Card>
@@ -226,18 +294,23 @@ function SearchContent() {
                                             <Badge variant="outline" className="text-xs">
                                               {citation.source_org}
                                             </Badge>
-                                            <Badge
-                                              variant="secondary"
-                                              className={`text-xs ${
-                                                citation.confidence >= 70
-                                                  ? "bg-emerald-100 text-emerald-700"
-                                                  : citation.confidence >= 50
-                                                    ? "bg-amber-100 text-amber-700"
-                                                    : "bg-stone-100 text-stone-600"
-                                              }`}
-                                            >
-                                              {citation.confidence}%
-                                            </Badge>
+                                            <span className="relative group/tooltip">
+                                              <Badge
+                                                variant="secondary"
+                                                className={`text-xs cursor-help ${
+                                                  citation.confidence >= 70
+                                                    ? "bg-emerald-100 text-emerald-700"
+                                                    : citation.confidence >= 50
+                                                      ? "bg-amber-100 text-amber-700"
+                                                      : "bg-stone-100 text-stone-600"
+                                                }`}
+                                              >
+                                                {citation.confidence}%
+                                              </Badge>
+                                              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-stone-800 rounded whitespace-nowrap opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none z-10">
+                                                {locale === "ko" ? "신뢰도 지수" : "Confidence Index"}
+                                              </span>
+                                            </span>
                                             <ExternalLink className="h-3 w-3 text-stone-400 group-hover:text-teal-700 ml-auto" />
                                           </div>
                                           <p className="text-xs text-stone-500 mb-2">
@@ -286,9 +359,16 @@ function SearchContent() {
               {loading && (
                 <Card className="bg-white border border-stone-200">
                   <CardContent className="py-8 flex flex-col items-center justify-center text-center">
-                    <Loader2 className="h-8 w-8 text-teal-700 animate-spin mb-3" />
-                    <p className="text-base font-medium text-stone-700">
-                      {locale === "ko" ? "AI 응답 생성 중..." : "Generating AI response..."}
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-xl font-semibold text-teal-700">Verity IQ</span>
+                      <span className="flex gap-1">
+                        <span className="w-2 h-2 bg-teal-600 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                        <span className="w-2 h-2 bg-teal-600 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                        <span className="w-2 h-2 bg-teal-600 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                      </span>
+                    </div>
+                    <p className="text-sm text-stone-500">
+                      {locale === "ko" ? "생각하는 중..." : "Thinking..."}
                     </p>
                   </CardContent>
                 </Card>
@@ -316,12 +396,16 @@ function SearchContent() {
           {loading && messages.length === 0 && (
             <Card className="bg-white border border-stone-200">
               <CardContent className="py-12 flex flex-col items-center justify-center text-center">
-                <Loader2 className="h-10 w-10 text-teal-700 animate-spin mb-4" />
-                <p className="text-lg font-medium text-stone-700">
-                  {locale === "ko" ? "AI 응답 생성 중..." : "Generating AI response..."}
-                </p>
-                <p className="text-sm text-stone-500 mt-1">
-                  {locale === "ko" ? "잠시만 기다려 주세요" : "This may take a moment"}
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-2xl font-semibold text-teal-700">Verity IQ</span>
+                  <span className="flex gap-1">
+                    <span className="w-2.5 h-2.5 bg-teal-600 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <span className="w-2.5 h-2.5 bg-teal-600 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <span className="w-2.5 h-2.5 bg-teal-600 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                  </span>
+                </div>
+                <p className="text-base text-stone-500">
+                  {locale === "ko" ? "생각하는 중..." : "Thinking..."}
                 </p>
               </CardContent>
             </Card>

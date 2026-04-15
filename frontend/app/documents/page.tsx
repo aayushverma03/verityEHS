@@ -23,13 +23,22 @@ type Document = {
 const pillars = ["all", "environment", "safety", "health", "integrated"]
 const docTypes = ["all", "regulation", "guideline", "sop", "manual", "quick_card"]
 
-const docTypeLabels: Record<string, string> = {
+const docTypeLabelsEN: Record<string, string> = {
   all: "All Types",
   regulation: "Regulations",
   guideline: "Guidelines",
   sop: "SOPs",
   manual: "Manuals",
   quick_card: "Quick Cards",
+}
+
+const docTypeLabelsKO: Record<string, string> = {
+  all: "전체 유형",
+  regulation: "규정",
+  guideline: "지침",
+  sop: "표준작업절차",
+  manual: "매뉴얼",
+  quick_card: "빠른 안내",
 }
 
 function getPillarStyle(pillar: string) {
@@ -48,15 +57,21 @@ function getPillarStyle(pillar: string) {
 }
 
 export default function DocumentsPage() {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const [documents, setDocuments] = useState<Document[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [pillarFilter, setPillarFilter] = useState("all")
   const [docTypeFilter, setDocTypeFilter] = useState("all")
 
+  const docTypeLabels = locale === "ko" ? docTypeLabelsKO : docTypeLabelsEN
+
   const getPillarLabel = (pillar: string) => {
     return t.documents[pillar as keyof typeof t.documents] || pillar
+  }
+
+  const getDocTypeLabel = (docType: string) => {
+    return docTypeLabels[docType] || docType
   }
 
   useEffect(() => {
@@ -110,7 +125,7 @@ export default function DocumentsPage() {
                   onClick={() => setDocTypeFilter(dt)}
                   className={docTypeFilter === dt ? "filter-chip-active" : "filter-chip-inactive"}
                 >
-                  {docTypeLabels[dt]}
+                  {getDocTypeLabel(dt)}
                 </button>
               ))}
             </div>
@@ -155,7 +170,7 @@ export default function DocumentsPage() {
                           {getPillarLabel(doc.pillar)}
                         </span>
                         <span className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium bg-teal-100 text-teal-800">
-                          {docTypeLabels[doc.doc_type] || doc.doc_type}
+                          {getDocTypeLabel(doc.doc_type)}
                         </span>
                       </div>
 

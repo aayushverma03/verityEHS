@@ -36,10 +36,10 @@ export function Nav() {
     <>
       {/* Desktop top nav */}
       <nav className="hidden md:flex fixed top-0 left-0 right-0 h-16 bg-white border-b border-stone-200 z-40 items-center px-6">
-        <Link href="/" className="mr-10 flex items-center">
+        <Link href="/" className="flex items-center mr-10">
           <Logo className="h-10 w-auto" />
         </Link>
-        <div className="flex gap-1">
+        <div className="flex gap-2">
           {navItems.map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href
@@ -48,13 +48,13 @@ export function Nav() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200",
+                  "flex items-center gap-2.5 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200",
                   isActive
                     ? "bg-teal-700 text-white"
                     : "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
                 )}
               >
-                <Icon className={cn("h-4 w-4", isActive ? "text-white" : item.color)} />
+                <Icon className={cn("h-5 w-5", isActive ? "text-white" : item.color)} />
                 {t.nav[item.key]}
               </Link>
             )
