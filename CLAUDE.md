@@ -64,7 +64,7 @@ Full details in `planning.md`. Assumptions table uses ASM1–ASM7.
 | Frontend | Next.js 14 (App Router), TypeScript, Tailwind CSS, shadcn/ui |
 | Backend | FastAPI (Python 3.11), SQLAlchemy async, asyncpg |
 | Database | PostgreSQL 15 + pgvector |
-| LLM | OpenAI `gpt-4.1-mini` |
+| LLM | OpenAI `gpt-5.4-mini` |
 | Embeddings | OpenAI `text-embedding-3-small` |
 | Infrastructure | Docker Compose (frontend + backend + db + nginx) |
 | File storage | None — photos held in memory, embedded in PDF, then discarded |
@@ -179,6 +179,29 @@ Simple register + login. No role enforcement anywhere.
 - All other routes require `Authorization: Bearer <token>` — 401 if missing
 - Any user can call any route. Role stored in DB only — never checked by the API.
 - Register form has no role dropdown — role is always defaulted server-side.
+
+---
+
+## Recent Implementations
+
+**UI/UX:**
+- Color scheme: Stone + Deep Teal palette
+- Branding: "Verity IQ" for AI responses with animated thinking dots
+- Search history: localStorage-based, last 5 queries, dropdown on focus
+- Citations: Grouped by document, confidence index (%) with tooltip, expandable excerpts
+- Document filters: Hybrid (pillars + doc types), Korean translations included
+- Mobile: Bottom nav, user menu access, proper header padding
+
+**RAG Search:**
+- Vector index: HNSW (replaced IVFFlat for accuracy)
+- Relevance threshold: max_distance 0.55 with fallback to nearest neighbors
+- Response budget: Dynamic token limits based on query type
+- Prompt: Structured markdown output, minimal bold, clarifying questions when ambiguous
+
+**Document Types:**
+- regulation, guideline, sop, manual, quick_card
+- Stored in `documents.doc_type` column
+- Filterable via `/api/documents?doc_type=...`
 
 ---
 
