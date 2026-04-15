@@ -10,9 +10,12 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { login } from "@/lib/api"
 import { setToken } from "@/lib/auth"
+import { useLanguage } from "@/components/language-provider"
+import { LanguageToggle } from "@/components/language-toggle"
 
 export default function LoginPage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -36,15 +39,18 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4">
+      <div className="absolute top-4 right-4">
+        <LanguageToggle />
+      </div>
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-xl md:text-2xl">Sign In</CardTitle>
-          <CardDescription>Enter your credentials to access EHS Platform</CardDescription>
+          <CardTitle className="text-xl md:text-2xl">{t.auth.signIn}</CardTitle>
+          <CardDescription>{t.auth.enterCredentials}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t.auth.email}</Label>
               <Input
                 id="email"
                 type="email"
@@ -56,7 +62,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t.auth.password}</Label>
               <Input
                 id="password"
                 type="password"
@@ -69,13 +75,13 @@ export default function LoginPage() {
             </div>
             {error && <p className="text-sm text-red-500">{error}</p>}
             <Button type="submit" className="w-full min-h-[44px]" disabled={loading}>
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? t.auth.signingIn : t.auth.signIn}
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-gray-500">
-            Don&apos;t have an account?{" "}
+            {t.auth.noAccount}{" "}
             <Link href="/register" className="text-gray-900 underline">
-              Register
+              {t.auth.register}
             </Link>
           </p>
         </CardContent>

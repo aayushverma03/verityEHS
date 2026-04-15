@@ -6,17 +6,22 @@ import { usePathname } from "next/navigation"
 import { FileText, Search, ClipboardCheck, AlertTriangle, Home } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { clearToken } from "@/lib/auth"
+import { useLanguage } from "./language-provider"
+import { LanguageToggle } from "./language-toggle"
 
-const navItems = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/documents", label: "Docs", icon: FileText },
-  { href: "/search", label: "Search", icon: Search },
-  { href: "/approvals", label: "Permits", icon: ClipboardCheck },
-  { href: "/incident", label: "Incident", icon: AlertTriangle },
+type NavKey = "home" | "docs" | "search" | "permits" | "incident"
+
+const navItems: Array<{ href: string; key: NavKey; icon: typeof Home }> = [
+  { href: "/", key: "home", icon: Home },
+  { href: "/documents", key: "docs", icon: FileText },
+  { href: "/search", key: "search", icon: Search },
+  { href: "/approvals", key: "permits", icon: ClipboardCheck },
+  { href: "/incident", key: "incident", icon: AlertTriangle },
 ]
 
 export function Nav() {
   const pathname = usePathname()
+  const { t } = useLanguage()
 
   function handleLogout() {
     clearToken()
@@ -42,16 +47,19 @@ export function Nav() {
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               )}
             >
-              {item.label}
+              {t.nav[item.key]}
             </Link>
           ))}
         </div>
-        <button
-          onClick={handleLogout}
-          className="ml-auto px-3 py-2 text-sm text-gray-600 hover:text-gray-900"
-        >
-          Sign out
-        </button>
+        <div className="ml-auto flex items-center gap-2">
+          <LanguageToggle />
+          <button
+            onClick={handleLogout}
+            className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900"
+          >
+            {t.nav.signOut}
+          </button>
+        </div>
       </nav>
 
       {/* Mobile bottom nav */}
@@ -69,7 +77,7 @@ export function Nav() {
               )}
             >
               <Icon className="h-5 w-5" />
-              <span className="text-xs mt-1">{item.label}</span>
+              <span className="text-xs mt-1">{t.nav[item.key]}</span>
             </Link>
           )
         })}

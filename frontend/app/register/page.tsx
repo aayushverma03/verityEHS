@@ -9,9 +9,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { register } from "@/lib/api"
+import { useLanguage } from "@/components/language-provider"
+import { LanguageToggle } from "@/components/language-toggle"
 
 export default function RegisterPage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -35,15 +38,18 @@ export default function RegisterPage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4">
+      <div className="absolute top-4 right-4">
+        <LanguageToggle />
+      </div>
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-xl md:text-2xl">Create Account</CardTitle>
-          <CardDescription>Enter your details to register for EHS Platform</CardDescription>
+          <CardTitle className="text-xl md:text-2xl">{t.auth.register}</CardTitle>
+          <CardDescription>{t.auth.enterDetails}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
+              <Label htmlFor="fullName">{t.auth.fullName}</Label>
               <Input
                 id="fullName"
                 type="text"
@@ -55,7 +61,7 @@ export default function RegisterPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t.auth.email}</Label>
               <Input
                 id="email"
                 type="email"
@@ -67,7 +73,7 @@ export default function RegisterPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t.auth.password}</Label>
               <Input
                 id="password"
                 type="password"
@@ -80,13 +86,13 @@ export default function RegisterPage() {
             </div>
             {error && <p className="text-sm text-red-500">{error}</p>}
             <Button type="submit" className="w-full min-h-[44px]" disabled={loading}>
-              {loading ? "Creating account..." : "Register"}
+              {loading ? t.auth.creatingAccount : t.auth.register}
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-gray-500">
-            Already have an account?{" "}
+            {t.auth.haveAccount}{" "}
             <Link href="/login" className="text-gray-900 underline">
-              Sign in
+              {t.auth.signIn}
             </Link>
           </p>
         </CardContent>
