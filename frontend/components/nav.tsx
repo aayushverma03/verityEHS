@@ -1,21 +1,22 @@
 // Navigation component with mobile bottom bar
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { FileText, Search, ClipboardCheck, AlertTriangle, Home } from "lucide-react"
+import { FileText, ClipboardCheck, AlertTriangle, Home, HelpCircle, User, LogOut, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { clearToken } from "@/lib/auth"
 import { useLanguage } from "./language-provider"
 import { LanguageToggle } from "./language-toggle"
 import { Logo } from "./logo"
 
-type NavKey = "home" | "docs" | "search" | "permits" | "incident"
+type NavKey = "home" | "docs" | "faq" | "permits" | "incident"
 
 const navItems: Array<{ href: string; key: NavKey; icon: typeof Home }> = [
   { href: "/", key: "home", icon: Home },
   { href: "/documents", key: "docs", icon: FileText },
-  { href: "/search", key: "search", icon: Search },
+  { href: "/faq", key: "faq", icon: HelpCircle },
   { href: "/approvals", key: "permits", icon: ClipboardCheck },
   { href: "/incident", key: "incident", icon: AlertTriangle },
 ]
@@ -23,6 +24,7 @@ const navItems: Array<{ href: string; key: NavKey; icon: typeof Home }> = [
 export function Nav() {
   const pathname = usePathname()
   const { t } = useLanguage()
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
 
   function handleLogout() {
     clearToken()
@@ -59,12 +61,32 @@ export function Nav() {
         </div>
         <div className="ml-auto flex items-center gap-3">
           <LanguageToggle />
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-xl transition-all duration-300"
-          >
-            {t.nav.signOut}
-          </button>
+          {/* User dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setUserMenuOpen(!userMenuOpen)}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100/80 hover:text-gray-900 transition-all duration-300"
+            >
+              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#0F7B6C] to-[#0A5C8A] flex items-center justify-center">
+                <User className="h-4 w-4 text-white" />
+              </div>
+              <ChevronDown className={cn("h-4 w-4 transition-transform", userMenuOpen && "rotate-180")} />
+            </button>
+            {userMenuOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+                <div className="absolute right-0 top-full mt-2 w-48 py-2 bg-white/95 backdrop-blur-xl rounded-xl shadow-xl border border-gray-200/60 z-50">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100/80 transition-colors"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    {t.nav.signOut}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </nav>
 

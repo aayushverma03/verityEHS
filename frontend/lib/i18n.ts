@@ -7,10 +7,11 @@ const translations = {
     nav: {
       home: "Home",
       docs: "Docs",
-      search: "Search",
+      faq: "FAQ",
       permits: "Permits",
       incident: "Incident",
       signOut: "Sign out",
+      profile: "Profile",
     },
     // Auth
     auth: {
@@ -137,6 +138,27 @@ const translations = {
       disclaimer: "AI-generated suggestion. Verify with your EHS officer before acting.",
       searchAgain: "Search again",
     },
+    // FAQ
+    faq: {
+      title: "Frequently Asked Questions",
+      subtitle: "Common questions about Verity EHS and chemical safety compliance",
+      q1: "What is Verity EHS?",
+      a1: "Verity EHS is an AI-powered compliance platform designed specifically for the chemical industry. It helps organizations manage work permits, track regulatory compliance, and access up-to-date safety documentation from OSHA, KOSHA, HSE, and EU-OSHA.",
+      q2: "How does the AI search work?",
+      a2: "Our AI uses retrieval-augmented generation (RAG) to search through regulatory documents and provide accurate, citation-backed answers to your EHS questions. Every response includes references to the source regulations.",
+      q3: "What types of work permits can I create?",
+      a3: "Verity EHS supports six permit types: Hot Work, Confined Space Entry, Working at Height, Chemical Transfer, Electrical Work, and Excavation. Each permit type includes AI-generated checklists based on relevant regulations.",
+      q4: "How does the risk assessment work?",
+      a4: "When creating a permit, our AI analyzes the operation type and site conditions to provide a risk score (Low/Medium/High). It also pre-fills hazard identification, required precautions, and PPE requirements based on applicable regulations.",
+      q5: "What regulations does the system cover?",
+      a5: "The document library includes regulations from OSHA (US), KOSHA (Korea), HSE (UK), and EU-OSHA. Coverage spans Process Safety Management (PSM), chemical handling, confined space entry, and general workplace safety.",
+      q6: "How do I submit compliance proof?",
+      a6: "After your permit is approved, navigate to the permit details and click 'Submit Compliance Proof'. Complete the AI-generated checklist, upload required photos, and submit. The system will generate a PDF compliance report.",
+      q7: "What happens if compliance gaps are detected?",
+      a7: "The AI reviews your submission against regulatory requirements. If gaps are found, you'll see a detailed list showing which steps may not meet compliance. You can choose to review and fix the issues or proceed with the download.",
+      q8: "Is my data secure?",
+      a8: "Yes. All data is encrypted in transit and at rest. Photos and documents are processed in memory and not stored permanently. Access requires authentication, and all actions are logged for audit purposes.",
+    },
     // Common
     common: {
       loading: "Loading...",
@@ -149,10 +171,11 @@ const translations = {
     nav: {
       home: "홈",
       docs: "문서",
-      search: "검색",
+      faq: "FAQ",
       permits: "작업허가",
       incident: "사고조회",
       signOut: "로그아웃",
+      profile: "프로필",
     },
     // Auth
     auth: {
@@ -278,6 +301,27 @@ const translations = {
       correctiveAction: "권장 시정 조치",
       disclaimer: "AI 생성 제안. 조치 전에 EHS 담당자와 확인하세요.",
       searchAgain: "다시 검색",
+    },
+    // FAQ
+    faq: {
+      title: "자주 묻는 질문",
+      subtitle: "Verity EHS 및 화학 안전 규정 준수에 대한 일반적인 질문",
+      q1: "Verity EHS란 무엇인가요?",
+      a1: "Verity EHS는 화학 산업을 위해 특별히 설계된 AI 기반 규정 준수 플랫폼입니다. 조직이 작업 허가를 관리하고, 규정 준수를 추적하며, OSHA, KOSHA, HSE 및 EU-OSHA의 최신 안전 문서에 접근할 수 있도록 도와줍니다.",
+      q2: "AI 검색은 어떻게 작동하나요?",
+      a2: "AI는 검색 증강 생성(RAG)을 사용하여 규정 문서를 검색하고 EHS 질문에 대해 정확하고 인용이 포함된 답변을 제공합니다. 모든 응답에는 출처 규정에 대한 참조가 포함됩니다.",
+      q3: "어떤 종류의 작업 허가를 만들 수 있나요?",
+      a3: "Verity EHS는 화기 작업, 밀폐 공간 진입, 고소 작업, 화학물질 이송, 전기 작업, 굴착의 6가지 허가 유형을 지원합니다. 각 허가 유형에는 관련 규정을 기반으로 AI가 생성한 체크리스트가 포함됩니다.",
+      q4: "위험 평가는 어떻게 작동하나요?",
+      a4: "허가 생성 시 AI가 작업 유형과 현장 조건을 분석하여 위험 점수(낮음/중간/높음)를 제공합니다. 또한 해당 규정에 따라 위험 식별, 필요한 예방 조치, PPE 요구 사항을 자동으로 채웁니다.",
+      q5: "시스템에서 어떤 규정을 다루나요?",
+      a5: "문서 라이브러리에는 OSHA(미국), KOSHA(한국), HSE(영국), EU-OSHA의 규정이 포함됩니다. 공정안전관리(PSM), 화학물질 취급, 밀폐 공간 진입, 일반 작업장 안전을 다룹니다.",
+      q6: "규정 준수 증빙은 어떻게 제출하나요?",
+      a6: "허가가 승인되면 허가 세부 정보로 이동하여 '규정 준수 증빙 제출'을 클릭하세요. AI가 생성한 체크리스트를 완료하고 필요한 사진을 업로드한 후 제출하세요. 시스템이 PDF 규정 준수 보고서를 생성합니다.",
+      q7: "규정 준수 격차가 감지되면 어떻게 되나요?",
+      a7: "AI가 규정 요구 사항에 대해 제출물을 검토합니다. 격차가 발견되면 규정 준수를 충족하지 못할 수 있는 단계를 보여주는 상세 목록이 표시됩니다. 문제를 검토하고 수정하거나 다운로드를 진행할 수 있습니다.",
+      q8: "내 데이터는 안전한가요?",
+      a8: "예. 모든 데이터는 전송 중 및 저장 시 암호화됩니다. 사진과 문서는 메모리에서 처리되며 영구적으로 저장되지 않습니다. 접근에는 인증이 필요하며, 감사를 위해 모든 작업이 기록됩니다.",
     },
     // Common
     common: {

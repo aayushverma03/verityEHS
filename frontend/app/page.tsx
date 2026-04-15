@@ -3,7 +3,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Search, Shield, FileText, AlertTriangle } from "lucide-react"
+import { Search, Shield, FileText, HelpCircle } from "lucide-react"
 import { Nav } from "@/components/nav"
 import { useLanguage } from "@/components/language-provider"
 import { Logo } from "@/components/logo"
@@ -24,7 +24,7 @@ export default function Home() {
   const features = [
     { icon: FileText, label: t.nav.docs, href: "/documents", color: "from-teal-500 to-cyan-500" },
     { icon: Shield, label: t.nav.permits, href: "/approvals", color: "from-emerald-500 to-teal-500" },
-    { icon: AlertTriangle, label: t.nav.incident, href: "/incident", color: "from-amber-500 to-orange-500" },
+    { icon: HelpCircle, label: t.nav.faq, href: "/faq", color: "from-blue-500 to-indigo-500" },
   ]
 
   return (
