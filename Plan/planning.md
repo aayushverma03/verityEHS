@@ -549,6 +549,8 @@ curl http://localhost:8000/health → {"status": "ok"}
 curl http://localhost/api/health  → same response via nginx
 ```
 
+**Status: DONE** — All 4 containers running (db, backend, frontend, nginx). Health endpoints verified.
+
 ---
 
 ### Step 3 — Database migrations
@@ -571,6 +573,8 @@ Verify:
 INSERT a test row into each table → no errors
 Plan/infra/api_contract.md exists and is non-empty
 ```
+
+**Status: DONE** — 5 tables created (profiles, documents, document_chunks, approval_requests, submissions). pgvector enabled. api_contract.md written.
 
 ---
 

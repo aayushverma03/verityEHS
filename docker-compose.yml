@@ -1,0 +1,76 @@
+# Docker Compose for EHS AI Platform
+services:
+  db:
+    image: pgvector/pgvector:pg15
+    container_name: ehs-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ehs_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ehspass}
+      POSTGRES_DB: ${POSTGRES_DB:-ehs_platform}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ehs_user -d ehs_platform"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ehs-backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-ehs_user}:${POSTGRES_PASSWORD:-ehspass}@db:5432/${POSTGRES_DB:-ehs_platform}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-prod}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ehs-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost/api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  nginx:
+    image: nginx:alpine
+    container_name: ehs-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+      - frontend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  pgdata:
