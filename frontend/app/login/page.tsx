@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { login } from "@/lib/api"
-import { setToken } from "@/lib/auth"
+import { setToken, setUserName } from "@/lib/auth"
 import { useLanguage } from "@/components/language-provider"
 import { LanguageToggle } from "@/components/language-toggle"
 import { Logo } from "@/components/logo"
@@ -30,6 +30,7 @@ export default function LoginPage() {
     try {
       const response = await login({ email, password })
       setToken(response.access_token)
+      setUserName(response.full_name)
       router.push("/")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed")

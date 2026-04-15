@@ -1,14 +1,18 @@
-# Document routes: list and detail
+# Document routes: list, detail, and download
+from pathlib import Path
 from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import FileResponse
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth import get_current_user
 from db import get_db
 from models import DocumentDetail, DocumentListItem
+
+PDF_DIR = Path(__file__).parent.parent / "data" / "raw"
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
@@ -84,4 +88,33 @@ async def get_document(
         token_count=row[9],
         creation_date=row[10],
         ingested_at=row[11],
+    )
+
+
+@router.get("/{doc_id}/download")
+async def download_document(
+    doc_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    _user: dict = Depends(get_current_user),
+):
+    """Download the PDF file for a document."""
+    result = await db.execute(
+        text("SELECT filename, title FROM documents WHERE id = :id"),
+        {"id": str(doc_id)},
+    )
+    row = result.fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    filename, title = row[0], row[1]
+    file_path = PDF_DIR / filename
+
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="PDF file not found")
+
+    return FileResponse(
+        path=file_path,
+        media_type="application/pdf",
+        filename=filename,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )

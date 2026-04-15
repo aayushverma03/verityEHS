@@ -41,7 +41,7 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
 async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
     """Authenticate and return JWT token."""
     result = await db.execute(
-        text("SELECT id, password_hash FROM profiles WHERE email = :email"),
+        text("SELECT id, password_hash, full_name FROM profiles WHERE email = :email"),
         {"email": body.email},
     )
     row = result.fetchone()
@@ -49,4 +49,4 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
     token = create_access_token(str(row[0]))
-    return LoginResponse(access_token=token)
+    return LoginResponse(access_token=token, full_name=row[2])

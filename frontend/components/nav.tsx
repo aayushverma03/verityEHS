@@ -6,7 +6,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { FileText, ClipboardCheck, AlertTriangle, Home, HelpCircle, User, LogOut, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { clearToken } from "@/lib/auth"
+import { clearToken, getUserName } from "@/lib/auth"
 import { useLanguage } from "./language-provider"
 import { LanguageToggle } from "./language-toggle"
 import { Logo } from "./logo"
@@ -25,6 +25,7 @@ export function Nav() {
   const pathname = usePathname()
   const { t } = useLanguage()
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const userName = getUserName()
 
   function handleLogout() {
     clearToken()
@@ -70,6 +71,7 @@ export function Nav() {
               <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#0F7B6C] to-[#0A5C8A] flex items-center justify-center">
                 <User className="h-4 w-4 text-white" />
               </div>
+              {userName && <span className="hidden lg:inline max-w-[120px] truncate">{userName}</span>}
               <ChevronDown className={cn("h-4 w-4 transition-transform", userMenuOpen && "rotate-180")} />
             </button>
             {userMenuOpen && (

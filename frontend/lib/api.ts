@@ -34,7 +34,7 @@ export async function login(data: { email: string; password: string }) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   })
-  return handleResponse<{ access_token: string; token_type: string }>(res)
+  return handleResponse<{ access_token: string; token_type: string; full_name: string }>(res)
 }
 
 // Documents

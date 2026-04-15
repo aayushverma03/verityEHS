@@ -4,13 +4,14 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, ExternalLink } from "lucide-react"
+import { ArrowLeft, Download } from "lucide-react"
 import { Nav } from "@/components/nav"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { getDocument } from "@/lib/api"
+import { authHeaders } from "@/lib/auth"
 
 type DocumentDetail = {
   id: string
@@ -33,6 +34,27 @@ export default function DocumentDetailPage() {
   const [document, setDocument] = useState<DocumentDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [downloading, setDownloading] = useState(false)
+
+  async function handleDownload() {
+    if (!document) return
+    setDownloading(true)
+    try {
+      const res = await fetch(`/api/documents/${id}/download`, { headers: authHeaders() })
+      if (!res.ok) throw new Error("Download failed")
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = window.document.createElement("a")
+      a.href = url
+      a.download = document.filename
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Download failed")
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   useEffect(() => {
     async function load() {
@@ -107,14 +129,14 @@ export default function DocumentDetailPage() {
                   </div>
                 </dl>
 
-                {document.source_url && (
-                  <Button asChild variant="outline" className="min-h-[44px]">
-                    <a href={document.source_url} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      View source
-                    </a>
-                  </Button>
-                )}
+                <Button
+                  onClick={handleDownload}
+                  disabled={downloading}
+                  className="min-h-[44px] btn-primary"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  {downloading ? "Downloading..." : "Download PDF"}
+                </Button>
               </CardContent>
             </Card>
           ) : null}
