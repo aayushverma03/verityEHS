@@ -171,7 +171,7 @@ const translations = {
     nav: {
       home: "홈",
       docs: "문서",
-      faq: "FAQ",
+      faq: "자주 묻는 질문",
       permits: "작업허가",
       incident: "사고조회",
       signOut: "로그아웃",
