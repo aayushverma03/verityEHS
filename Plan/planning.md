@@ -499,6 +499,8 @@ Each file is non-zero bytes and ends in .pdf
 Log shows URL, HTTP status, and file size per document
 ```
 
+**Status: DONE** — 34 PDFs in backend/data/raw/ (regulations, manuals, SOPs, guidelines)
+
 ---
 
 ### Step 1 — Ingestion experiments (schema discovery)
@@ -520,6 +522,8 @@ Verify:
 For each PDF: extracted text is non-empty and readable
 Plan/infra/schema.md exists with finalised schema and chunk size decision
 ```
+
+**Status: DONE** — 1214 chunks extracted (800 tokens, 100 overlap) to `backend/data/chunks/new_documents.json`. Two image-based PDFs yielded no text: `23.SOP. Chemical Handling.pdf`, `msds-제도-홍보-영문-리플렛-210401.pdf`.
 
 ---
 

@@ -11,8 +11,9 @@ __pycache__/
 frontend/.next/
 frontend/out/
 
-# Ingested data (large files, rebuilt from ingestion scripts)
-backend/data/
 
 # OS
 .DS_Store
+
+# Raw PDFs (81MB) — too large for git, download via fetch_documents.py
+backend/data/raw/

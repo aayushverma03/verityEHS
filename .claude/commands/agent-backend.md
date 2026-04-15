@@ -63,15 +63,15 @@ PDF parsing rules (follow directly — no external skill file):
 - Chunk using the size from Plan/infra/schema.md
 
 Tasks:
-- Raw files already exist in `backend/data/raw/` from pre-agent Step 0
-- `parse_and_chunk.py` already written in Step 1 — use it
+- Raw files already exist in `backend/data/raw/` (34 PDFs) from pre-agent Step 0
+- Chunks already extracted in Step 1 → `backend/data/chunks/new_documents.json` (1214 chunks)
 - Write `backend/ingestion/embed_and_load.py`:
-  embed each chunk via OpenAI `text-embedding-3-small`, insert into Postgres
+  read chunks from JSON, embed each via OpenAI `text-embedding-3-small`, insert into Postgres
 
 Verify:
 ```
-SELECT count(*) FROM documents;       → ≥ 10 (≥ 15 preferred)
-SELECT count(*) FROM document_chunks; → ≥ 200
+SELECT count(*) FROM documents;       → 32 (34 PDFs minus 2 image-only)
+SELECT count(*) FROM document_chunks; → 1214
 SELECT content FROM document_chunks LIMIT 3; → readable chemical EHS text
 Vector similarity query returns results without error
 ```

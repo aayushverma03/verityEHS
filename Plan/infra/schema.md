@@ -6,12 +6,12 @@ Written at the end of pre-agent Step 1. Gates Agent 1 (migrations) and Agent 2 (
 
 ## 1. Ingestion experiment summary
 
-- **Input:** 17 PDFs in `backend/data/raw/`, 14 fetched by `fetch_documents.py`, 3 added manually (EUR-Lex REACH + ATEX CELEX PDFs, KOSHA MSDS leaflet).
+- **Input:** 34 PDFs in `backend/data/raw/` — 14 fetched by `fetch_documents.py`, 20 added manually (EUR-Lex CELEX, manuals, SOPs, guidelines, handling procedures).
 - **Tool:** `pdfplumber` + `tiktoken` (cl100k_base encoding) + `langdetect`.
-- **Script:** `backend/ingestion/parse_and_chunk.py`.
-- **Result:** 16 of 17 PDFs yield non-empty readable text. One failure: `msds-제도-홍보-영문-리플렛-210401.pdf` (KOSHA English leaflet) extracts 0 tokens — scanned/image-based PDF. **ASM2 confirmed** — the pipeline cannot handle image PDFs without OCR.
+- **Script:** `backend/ingestion/extract_all.py`.
+- **Result:** 32 of 34 PDFs yield non-empty readable text. Two failures (scanned/image-based): `msds-제도-홍보-영문-리플렛-210401.pdf`, `23.SOP. Chemical Handling.pdf`. **ASM2 confirmed** — the pipeline cannot handle image PDFs without OCR.
 
-### Field confidence (from 17 PDFs, pdfplumber `pdf.metadata`)
+### Field confidence (from 34 PDFs, pdfplumber `pdf.metadata`)
 
 | Field | Present | Reliability | Notes |
 |-------|---------|-------------|-------|
@@ -29,20 +29,20 @@ Written at the end of pre-agent Step 1. Gates Agent 1 (migrations) and Agent 2 (
 
 ## 2. Chunk size decision
 
-### Experiment results — no overlap, across 17 PDFs
+### Experiment results — 100 token overlap, across 34 PDFs
 
 | Chunk size (tokens) | Total chunks | Notes |
 |---------------------|--------------|-------|
-| 500 | 1,329 | Too granular — REACH alone produces 526 chunks, many cut mid-clause |
-| **800** | **833** | **Selected** — one section of a regulation usually fits; semantic cohesion preserved |
-| 1200 | 558 | Risks diluting topic specificity; short documents (ILO C174, 4,370 tokens) become only 4 chunks — poor recall |
+| **800** | **1,214** | **Selected** — one section of a regulation usually fits; semantic cohesion preserved |
+
+Output: `backend/data/chunks/new_documents.json`
 
 ### Decision: **800 tokens per chunk, 100 tokens overlap**
 
 **Rationale:**
 - Regulatory docs have nested clauses and long definitions that read poorly when cut mid-paragraph. 800 tokens ≈ 3,200 characters ≈ one section.
 - 100-token overlap (12.5%) reduces cases where a key phrase is split between chunks — standard for RAG on legal/regulatory content.
-- Effective step = 700 tokens. Expected total chunks: ~950. OpenAI embedding cost for that volume: ~$0.20 one-off.
+- Effective step = 700 tokens. Total chunks: 1,214. OpenAI embedding cost for that volume: ~$0.25 one-off.
 - Top-5 retrieval gives the LLM ~4,000 tokens of context — well under `gpt-4.1-mini` limits, leaves plenty of room for the prompt + answer.
 - Embedding model `text-embedding-3-small` accepts up to 8,191 tokens per request, so 800-token chunks are well below the ceiling.
 

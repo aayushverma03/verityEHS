@@ -116,6 +116,22 @@ Follow these inline rules instead — they are embedded directly in each agent c
 
 ---
 
+## Document Ingestion
+
+PDFs are stored in `backend/data/raw/` (34 files). Extraction pipeline:
+
+```bash
+uv run backend/ingestion/extract_all.py
+```
+
+Output: `backend/data/chunks/new_documents.json` (1214 chunks, 800 tokens each, 100 token overlap)
+
+Two PDFs are image-based with no extractable text:
+- `23.SOP. Chemical Handling.pdf`
+- `msds-제도-홍보-영문-리플렛-210401.pdf`
+
+---
+
 ## Key Conventions
 
 **Backend (Python)**
@@ -148,7 +164,8 @@ mkdir -p Plan/infra Plan/backend Plan/frontend Plan/review
 
 # 2. Pre-agent steps must be complete
 #    Plan/infra/schema.md must exist (written during Step 1)
-#    backend/data/raw/ must contain ≥ 15 PDF files (downloaded in Step 0)
+#    backend/data/raw/ must contain 34 PDF files (regulations, manuals, SOPs)
+#    backend/data/chunks/new_documents.json must exist (1214 chunks extracted)
 ```
 
 ---
