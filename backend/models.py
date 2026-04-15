@@ -63,6 +63,7 @@ class SearchRequest(BaseModel):
 
 
 class Citation(BaseModel):
+    document_id: str
     document_title: str
     source_org: str
     regulation_reference: Optional[str]

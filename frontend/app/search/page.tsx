@@ -1,16 +1,15 @@
-// Search results page with streaming AI response
+// Search results page
 "use client"
 
-import { useEffect, useState, Suspense, useRef } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { Search, ChevronDown, ChevronUp, ExternalLink } from "lucide-react"
+import { Search, ChevronDown, ChevronUp, ExternalLink, Loader2 } from "lucide-react"
 import { Nav } from "@/components/nav"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { useLanguage } from "@/components/language-provider"
 import { authHeaders } from "@/lib/auth"
@@ -31,86 +30,39 @@ type SearchResult = {
 function SearchContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const initialQuery = searchParams.get("q") || ""
   const [query, setQuery] = useState(initialQuery)
   const [result, setResult] = useState<SearchResult | null>(null)
   const [loading, setLoading] = useState(false)
-  const [streaming, setStreaming] = useState(false)
   const [error, setError] = useState("")
   const [citationsOpen, setCitationsOpen] = useState(false)
-  const abortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     if (initialQuery) {
       performSearch(initialQuery)
     }
-    return () => {
-      abortRef.current?.abort()
-    }
   }, [initialQuery])
 
   async function performSearch(q: string) {
-    abortRef.current?.abort()
-    abortRef.current = new AbortController()
-
     setLoading(true)
-    setStreaming(false)
     setError("")
     setResult(null)
 
     try {
-      const res = await fetch("/api/search/stream", {
+      const res = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ query: q }),
-        signal: abortRef.current.signal,
       })
 
       if (!res.ok) throw new Error("Search failed")
-      if (!res.body) throw new Error("No response body")
-
-      const reader = res.body.getReader()
-      const decoder = new TextDecoder()
-      let answer = ""
-      let citations: Citation[] = []
-
-      setLoading(false)
-      setStreaming(true)
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        const chunk = decoder.decode(value)
-        const lines = chunk.split("\n")
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            try {
-              const data = JSON.parse(line.slice(6))
-              if (data.type === "citations") {
-                citations = data.citations
-                setResult({ answer: "", citations })
-              } else if (data.type === "token") {
-                answer += data.content
-                setResult({ answer, citations })
-              } else if (data.type === "done") {
-                setStreaming(false)
-              }
-            } catch {
-              // Skip malformed JSON
-            }
-          }
-        }
-      }
+      const data = await res.json()
+      setResult(data)
     } catch (err) {
-      if ((err as Error).name !== "AbortError") {
-        setError(err instanceof Error ? err.message : "Search failed")
-      }
+      setError(err instanceof Error ? err.message : "Search failed")
     } finally {
       setLoading(false)
-      setStreaming(false)
     }
   }
 
@@ -151,14 +103,15 @@ function SearchContent() {
           {error && <p className="text-red-500 mb-4">{error}</p>}
 
           {loading ? (
-            <Card>
-              <CardHeader>
-                <Skeleton className="h-6 w-1/3" />
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
+            <Card className="glass-card">
+              <CardContent className="py-12 flex flex-col items-center justify-center text-center">
+                <Loader2 className="h-10 w-10 text-[#0F7B6C] animate-spin mb-4" />
+                <p className="text-lg font-medium text-gray-700">
+                  {locale === "ko" ? "AI 응답 생성 중..." : "Generating AI response..."}
+                </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  {locale === "ko" ? "잠시만 기다려 주세요" : "This may take a moment"}
+                </p>
               </CardContent>
             </Card>
           ) : result ? (
@@ -172,10 +125,7 @@ function SearchContent() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-700 whitespace-pre-wrap">
-                    {result.answer}
-                    {streaming && <span className="inline-block w-2 h-4 bg-[#0F7B6C] ml-1 animate-pulse" />}
-                  </p>
+                  <p className="text-gray-700 whitespace-pre-wrap">{result.answer}</p>
                 </CardContent>
               </Card>
 

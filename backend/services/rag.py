@@ -85,7 +85,7 @@ async def generate_answer(
     system_prompt = _build_system_prompt(lang)
 
     response = await client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-5.4-mini",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {query}"},
@@ -105,7 +105,7 @@ async def generate_answer_stream(
     system_prompt = _build_system_prompt(lang)
 
     stream = await client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-5.4-mini",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {query}"},
