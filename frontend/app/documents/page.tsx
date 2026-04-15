@@ -83,7 +83,7 @@ export default function DocumentsPage() {
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {p.charAt(0).toUpperCase() + p.slice(1)}
+                {t.documents[p as keyof typeof t.documents] || p}
               </button>
             ))}
           </div>

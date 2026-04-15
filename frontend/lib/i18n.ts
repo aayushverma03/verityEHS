@@ -38,6 +38,10 @@ const translations = {
       noResults: "No documents found matching your filters.",
       pages: "pages",
       all: "All",
+      environment: "Environment",
+      safety: "Safety",
+      health: "Health",
+      integrated: "Integrated",
     },
     // Search
     search: {
@@ -176,6 +180,10 @@ const translations = {
       noResults: "필터와 일치하는 문서가 없습니다.",
       pages: "페이지",
       all: "전체",
+      environment: "환경",
+      safety: "안전",
+      health: "보건",
+      integrated: "통합",
     },
     // Search
     search: {
