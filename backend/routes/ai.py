@@ -44,7 +44,7 @@ async def risk_prefill(
     )
 
     response = await client.chat.completions.create(
-        model="gpt-4.1-mini",
+        model="gpt-4o-mini",
         messages=[
             {
                 "role": "system",
@@ -86,7 +86,7 @@ async def generate_checklist(
     )
 
     response = await client.chat.completions.create(
-        model="gpt-4.1-mini",
+        model="gpt-4o-mini",
         messages=[
             {
                 "role": "system",

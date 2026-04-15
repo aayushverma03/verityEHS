@@ -1,7 +1,7 @@
-// Search results page
+// Search results page with streaming AI response
 "use client"
 
-import { useEffect, useState, Suspense } from "react"
+import { useEffect, useState, Suspense, useRef } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Search, ChevronDown, ChevronUp } from "lucide-react"
 import { Nav } from "@/components/nav"
@@ -11,17 +11,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { search } from "@/lib/api"
 import { useLanguage } from "@/components/language-provider"
+import { authHeaders } from "@/lib/auth"
+
+type Citation = {
+  document_title: string
+  source_org: string
+  regulation_reference: string
+  chunk_excerpt: string
+}
 
 type SearchResult = {
   answer: string
-  citations: Array<{
-    document_title: string
-    source_org: string
-    regulation_reference: string
-    chunk_excerpt: string
-  }>
+  citations: Citation[]
 }
 
 function SearchContent() {
@@ -32,26 +34,81 @@ function SearchContent() {
   const [query, setQuery] = useState(initialQuery)
   const [result, setResult] = useState<SearchResult | null>(null)
   const [loading, setLoading] = useState(false)
+  const [streaming, setStreaming] = useState(false)
   const [error, setError] = useState("")
   const [citationsOpen, setCitationsOpen] = useState(false)
+  const abortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     if (initialQuery) {
       performSearch(initialQuery)
     }
+    return () => {
+      abortRef.current?.abort()
+    }
   }, [initialQuery])
 
   async function performSearch(q: string) {
+    abortRef.current?.abort()
+    abortRef.current = new AbortController()
+
     setLoading(true)
+    setStreaming(false)
     setError("")
     setResult(null)
+
     try {
-      const data = await search(q)
-      setResult(data)
+      const res = await fetch("/api/search/stream", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ query: q }),
+        signal: abortRef.current.signal,
+      })
+
+      if (!res.ok) throw new Error("Search failed")
+      if (!res.body) throw new Error("No response body")
+
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let answer = ""
+      let citations: Citation[] = []
+
+      setLoading(false)
+      setStreaming(true)
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value)
+        const lines = chunk.split("\n")
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6))
+              if (data.type === "citations") {
+                citations = data.citations
+                setResult({ answer: "", citations })
+              } else if (data.type === "token") {
+                answer += data.content
+                setResult({ answer, citations })
+              } else if (data.type === "done") {
+                setStreaming(false)
+              }
+            } catch {
+              // Skip malformed JSON
+            }
+          }
+        }
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Search failed")
+      if ((err as Error).name !== "AbortError") {
+        setError(err instanceof Error ? err.message : "Search failed")
+      }
     } finally {
       setLoading(false)
+      setStreaming(false)
     }
   }
 
@@ -113,7 +170,10 @@ function SearchContent() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-700 whitespace-pre-wrap">{result.answer}</p>
+                  <p className="text-gray-700 whitespace-pre-wrap">
+                    {result.answer}
+                    {streaming && <span className="inline-block w-2 h-4 bg-[#0F7B6C] ml-1 animate-pulse" />}
+                  </p>
                 </CardContent>
               </Card>
 
